@@ -1,0 +1,2705 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Penginapan TIPALAYO — Luxury Stay & Hospitality CMS</title>
+  <meta name="description" content="Portal Resmi Reservasi Kamar & Sistem Manajemen Penginapan TIPALAYO" />
+  <meta name="theme-color" content="#0F262A" />
+
+  <!-- Single-File PWA Manifest (Data URI) -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Penginapan TIPALAYO CMS & Reservasi","short_name":"TIPALAYO","start_url":".","display":"standalone","background_color":"#FBF9F5","theme_color":"#0F262A","icons":[{"src":"https://placehold.co/192x192/0F262A/C5A367?text=TPL","sizes":"192x192","type":"image/png"}]}' />
+
+  <!-- Google Fonts: Playfair Display (Editorial Serif) & Plus Jakarta Sans (Clean UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emeraldNight: '#0F262A',
+            emeraldDeep: '#142E33',
+            alabaster: '#FBF9F5',
+            champagne: '#C5A367',
+            bronzeHover: '#B08D50',
+            charcoalTeal: '#142326',
+            warmSlate: '#64706D',
+            sandBorder: '#E6E1D6'
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Full-Page Wrapper Wajib (Kompatibel dengan GitHub Pages & Blogger Widget) */
+    #tipalayo-app-wrapper {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background-color: #FBF9F5;
+      color: #142326;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    #tipalayo-app-wrapper::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    #tipalayo-app-wrapper::-webkit-scrollbar-track {
+      background: #FBF9F5;
+    }
+    #tipalayo-app-wrapper::-webkit-scrollbar-thumb {
+      background: #C5A367;
+      border-radius: 9999px;
+    }
+
+    /* Glassmorphism & Luxury Surfaces */
+    .glass-light {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(230, 225, 214, 0.85);
+    }
+    .glass-dark {
+      background: rgba(15, 38, 42, 0.90);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(197, 163, 103, 0.25);
+    }
+
+    /* Floating WA Pulse Animation */
+    @keyframes waPulse {
+      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.65); }
+      70% { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+    .wa-pulse-btn {
+      animation: waPulse 2.2s infinite;
+    }
+
+    /* Dedicated Print Styling for Luxury E-Invoice */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #tipalayo-app-wrapper {
+        position: static !important;
+        overflow: visible !important;
+        background: #FFFFFF !important;
+      }
+      #invoice-modal-backdrop,
+      #invoice-printable-area,
+      #invoice-printable-area * {
+        visibility: visible !important;
+      }
+      #invoice-modal-backdrop {
+        position: absolute !important;
+        inset: 0 !important;
+        background: #FFFFFF !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+      }
+      #invoice-printable-area {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: 1px solid #E6E1D6 !important;
+        margin: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-alabaster text-charcoalTeal antialiased selection:bg-champagne selection:text-white">
+
+  <!-- MAIN FULLSCREEN CONTAINER -->
+  <div id="tipalayo-app-wrapper">
+
+    <!-- 1. BANNER MODE PREVIEW (Hanya tampil jika IS_PREVIEW = true) -->
+    <div id="preview-mode-banner" class="hidden no-print sticky top-0 z-50 bg-emeraldNight text-white border-b border-champagne/40 px-4 py-2 text-xs shadow-md">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-champagne/20 border border-champagne text-champagne font-semibold tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-champagne animate-ping"></span>
+            MODE PREVIEW AKTIF (Uji Coba Lokal)
+          </span>
+          <span class="text-stone-300 hidden sm:inline">Data disimpan di memori browser. Ubah <code class="text-champagne font-mono">IS_PREVIEW = false</code> saat deploy ke Supabase.</span>
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-stone-400 mr-1 hidden md:inline">Akses Instan:</span>
+          <button type="button" onclick="window.app.quickSwitchRole('public')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition font-medium">
+            Pengunjung Publik
+          </button>
+          <button type="button" onclick="window.app.quickSwitchRole('tamu')" class="px-2.5 py-1 rounded-lg bg-emerald-600/80 hover:bg-emerald-600 text-white transition font-medium">
+            Masuk Cepat: Tamu (Member)
+          </button>
+          <button type="button" onclick="window.app.quickSwitchRole('admin')" class="px-2.5 py-1 rounded-lg bg-champagne hover:bg-bronzeHover text-white transition font-semibold">
+            Masuk Cepat: Admin CMS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. LAYOUT SHELL: DESKTOP LEFT SIDEBAR + MAIN CONTENT -->
+    <div class="flex min-h-screen">
+
+      <!-- DESKTOP FIXED LEFT SIDEBAR (Royal Haven Deep Emerald Night) -->
+      <aside class="hidden md:flex md:w-64 lg:w-72 flex-col bg-emeraldNight text-white border-r border-white/10 shrink-0 select-none no-print">
+        <!-- Brand Header -->
+        <div class="p-6 border-b border-white/10 flex items-center gap-3.5">
+          <img id="sidebar-logo-img" src="https://placehold.co/120x120/0F262A/C5A367?text=TPL" alt="Logo TIPALAYO" class="w-11 h-11 rounded-xl object-cover border border-champagne/50 shadow-sm" onerror="this.src='https://placehold.co/120x120/0F262A/C5A367?text=TPL'" />
+          <div class="overflow-hidden">
+            <span class="text-[10px] uppercase tracking-[0.25em] text-champagne block font-semibold">HOTEL & RESORT</span>
+            <h1 class="font-serif text-lg font-semibold tracking-wide text-white truncate">TIPALAYO</h1>
+          </div>
+        </div>
+
+        <!-- User Session Status Card -->
+        <div class="px-4 py-3.5 border-b border-white/10 bg-emeraldDeep/60">
+          <div class="flex items-center justify-between">
+            <div class="truncate">
+              <p class="text-[11px] uppercase tracking-wider text-stone-400" id="sidebar-role-badge">Pengunjung Publik</p>
+              <p class="text-sm font-semibold text-champagne truncate" id="sidebar-user-name">Selamat Datang</p>
+            </div>
+            <button id="sidebar-auth-btn" onclick="window.app.openAuthModal()" class="px-3 py-1.5 rounded-lg bg-champagne text-white text-xs font-semibold hover:bg-bronzeHover transition shrink-0">
+              Masuk
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto text-sm">
+          <p class="px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-400">Menu Utama & Tamu</p>
+
+          <button onclick="window.app.navigate('beranda')" data-nav="beranda" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+            <i data-lucide="compass" class="w-4 h-4 text-champagne"></i>
+            <span>Beranda & Profil</span>
+          </button>
+
+          <button onclick="window.app.navigate('katalog')" data-nav="katalog" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+            <i data-lucide="bed-double" class="w-4 h-4 text-champagne"></i>
+            <span>Katalog Kamar</span>
+          </button>
+
+          <button onclick="window.app.navigate('pesanan')" data-nav="pesanan" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition">
+            <span class="flex items-center gap-3">
+              <i data-lucide="receipt" class="w-4 h-4 text-champagne"></i>
+              <span>Pesanan & E-Invoice</span>
+            </span>
+            <span id="badge-pesanan-count" class="px-2 py-0.5 text-[11px] rounded-full bg-champagne/20 text-champagne font-semibold">0</span>
+          </button>
+
+          <button onclick="window.app.navigate('artikel')" data-nav="artikel" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+            <i data-lucide="newspaper" class="w-4 h-4 text-champagne"></i>
+            <span>Berita, Wisata & Promo</span>
+          </button>
+
+          <!-- ADMIN CMS SECTION (Hanya tampil saat Admin Login) -->
+          <div id="sidebar-admin-group" class="hidden pt-4 mt-4 border-t border-white/10 space-y-1.5">
+            <p class="px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-champagne">Panel Admin & CMS</p>
+
+            <button onclick="window.app.navigate('admin-dashboard')" data-nav="admin-dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 text-champagne"></i>
+              <span>Ringkasan Dashboard</span>
+            </button>
+
+            <button onclick="window.app.navigate('admin-kamar')" data-nav="admin-kamar" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+              <i data-lucide="key-round" class="w-4 h-4 text-champagne"></i>
+              <span>Manajemen Kamar</span>
+            </button>
+
+            <button onclick="window.app.navigate('admin-reservasi')" data-nav="admin-reservasi" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+              <i data-lucide="calendar-check-2" class="w-4 h-4 text-champagne"></i>
+              <span>Reservasi & Invoice</span>
+            </button>
+
+            <button onclick="window.app.navigate('admin-cms')" data-nav="admin-cms" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+              <i data-lucide="Sliders" class="w-4 h-4 text-champagne"></i>
+              <span>Pengaturan Web & CMS</span>
+            </button>
+
+            <button onclick="window.app.navigate('admin-tamu')" data-nav="admin-tamu" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition">
+              <i data-lucide="users" class="w-4 h-4 text-champagne"></i>
+              <span>Data Akun Tamu</span>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Sidebar Footer Contact Info -->
+        <div class="p-4 border-t border-white/10 text-xs text-stone-400 space-y-2">
+          <div class="flex items-center gap-2 text-stone-300">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5 text-champagne shrink-0"></i>
+            <span id="sidebar-phone-display">+62 812-3456-7890</span>
+          </div>
+          <p class="text-[11px] text-stone-500">© 2026 Penginapan TIPALAYO</p>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT AREA -->
+      <div class="flex-1 flex flex-col min-w-0 pb-24 md:pb-0">
+
+        <!-- MOBILE TOP HEADER -->
+        <header class="md:hidden sticky top-0 z-40 bg-emeraldNight text-white px-4 py-3 flex items-center justify-between border-b border-white/10 shadow-md no-print">
+          <div class="flex items-center gap-2.5" onclick="window.app.navigate('beranda')">
+            <img id="mobile-logo-img" src="https://placehold.co/100x100/0F262A/C5A367?text=TPL" alt="Logo" class="w-9 h-9 rounded-lg object-cover border border-champagne/50" onerror="this.src='https://placehold.co/100x100/0F262A/C5A367?text=TPL'" />
+            <div>
+              <span class="text-[9px] uppercase tracking-[0.2em] text-champagne block">PENGINAPAN</span>
+              <span class="font-serif text-base font-semibold tracking-wide">TIPALAYO</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="mobile-role-chip" class="text-[11px] px-2.5 py-1 rounded-full bg-white/10 text-champagne font-medium">Publik</span>
+            <button id="mobile-auth-btn" onclick="window.app.openAuthModal()" class="px-3 py-1.5 rounded-lg bg-champagne text-white text-xs font-semibold">
+              Masuk
+            </button>
+          </div>
+        </header>
+
+        <!-- VIEW CONTAINERS -->
+        <main class="flex-1">
+
+          <!-- ==========================================
+               VIEW 1: BERANDA & LANDING CMS (ROYAL HAVEN)
+               ========================================== -->
+          <section id="view-beranda" class="view-section">
+            <!-- Royal Haven Hero Section -->
+            <div class="relative min-h-[580px] lg:min-h-[650px] flex flex-col justify-between bg-emeraldNight text-white overflow-hidden">
+              <!-- Dynamic Hero Background Image -->
+              <img id="hero-banner-img" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80" alt="Penginapan TIPALAYO" class="absolute inset-0 w-full h-full object-cover object-center opacity-55 scale-105 transition-transform duration-1000" onerror="this.src='https://placehold.co/1600x900/0F262A/C5A367?text=Penginapan+TIPALAYO'" />
+              <!-- Luxury Dark Emerald Gradient Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-r from-emeraldNight/95 via-emeraldNight/75 to-emeraldNight/40"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-emeraldNight via-transparent to-emeraldNight/60"></div>
+
+              <!-- Royal Haven Embedded Top Navbar -->
+              <div class="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-8 pt-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-champagne/20 border border-champagne flex items-center justify-center text-champagne font-serif font-bold">
+                    T
+                  </div>
+                  <div>
+                    <span class="font-serif text-lg tracking-wider font-semibold block leading-none">TIPALAYO</span>
+                    <span class="text-[9px] uppercase tracking-[0.25em] text-champagne">HOTEL & SANCTUARY</span>
+                  </div>
+                </div>
+                <div class="hidden lg:flex items-center gap-7 text-xs uppercase tracking-[0.15em] text-stone-200">
+                  <button onclick="window.app.navigate('beranda')" class="text-champagne border-b-2 border-champagne pb-1 font-semibold">Beranda</button>
+                  <button onclick="window.app.navigate('katalog')" class="hover:text-champagne transition pb-1">Kamar & Suite</button>
+                  <a href="#section-amenities" class="hover:text-champagne transition pb-1">Fasilitas</a>
+                  <button onclick="window.app.navigate('artikel')" class="hover:text-champagne transition pb-1">Wisata & Promo</button>
+                  <button onclick="window.app.navigate('pesanan')" class="hover:text-champagne transition pb-1">Cek Invoice</button>
+                </div>
+                <button onclick="window.app.navigate('katalog')" class="px-5 py-2.5 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-semibold tracking-wider uppercase transition shadow-lg flex items-center gap-2">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                  <span>Book Now</span>
+                </button>
+              </div>
+
+              <!-- Hero Center Editorial Content -->
+              <div class="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-8 py-12 lg:py-16">
+                <div class="max-w-2xl space-y-5">
+                  <p class="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-champagne font-semibold">
+                    LUXURY STAYS • UNFORGETTABLE EXPERIENCES
+                  </p>
+                  <h2 id="hero-title-text" class="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.12] text-white">
+                    Lebih Dari Sekadar Menginap, <span class="italic font-normal text-champagne">Ini Adalah Kenyamanan</span>
+                  </h2>
+                  <p id="hero-subtitle-text" class="text-sm sm:text-base text-stone-200 leading-relaxed max-w-xl font-light">
+                    Temukan perpaduan sempurna antara ketenangan, keramahan hangat khas Nusantara, dan fasilitas modern terbaik di Penginapan TIPALAYO.
+                  </p>
+                </div>
+
+                <!-- Floating Booking Check Availability Bar (Royal Haven Signature) -->
+                <div class="mt-8 sm:mt-10 bg-white text-charcoalTeal rounded-2xl p-3 sm:p-4 shadow-2xl max-w-4xl border border-sandBorder">
+                  <form onsubmit="window.app.handleQuickSearchBooking(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+                    <div class="px-3 py-2 rounded-xl bg-alabaster border border-sandBorder/80">
+                      <label class="block text-[10px] uppercase tracking-wider text-warmSlate font-semibold mb-1">Tanggal Check-In</label>
+                      <div class="flex items-center gap-2">
+                        <i data-lucide="calendar-days" class="w-4 h-4 text-champagne shrink-0"></i>
+                        <input type="date" id="quick-checkin" required class="w-full bg-transparent text-xs sm:text-sm font-semibold focus:outline-none" />
+                      </div>
+                    </div>
+
+                    <div class="px-3 py-2 rounded-xl bg-alabaster border border-sandBorder/80">
+                      <label class="block text-[10px] uppercase tracking-wider text-warmSlate font-semibold mb-1">Tanggal Check-Out</label>
+                      <div class="flex items-center gap-2">
+                        <i data-lucide="calendar-check" class="w-4 h-4 text-champagne shrink-0"></i>
+                        <input type="date" id="quick-checkout" required class="w-full bg-transparent text-xs sm:text-sm font-semibold focus:outline-none" />
+                      </div>
+                    </div>
+
+                    <div class="px-3 py-2 rounded-xl bg-alabaster border border-sandBorder/80">
+                      <label class="block text-[10px] uppercase tracking-wider text-warmSlate font-semibold mb-1">Kapasitas Tamu</label>
+                      <div class="flex items-center gap-2">
+                        <i data-lucide="users" class="w-4 h-4 text-champagne shrink-0"></i>
+                        <select id="quick-guests" class="w-full bg-transparent text-xs sm:text-sm font-semibold focus:outline-none">
+                          <option value="1">1 Dewasa</option>
+                          <option value="2" selected>2 Dewasa</option>
+                          <option value="3">3 - 4 Tamu (Keluarga)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="w-full h-full min-h-[52px] rounded-xl bg-champagne hover:bg-bronzeHover text-white font-semibold text-xs sm:text-sm tracking-wide transition flex items-center justify-center gap-2 shadow-md">
+                      <span>Cek Ketersediaan</span>
+                      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                  </form>
+                </div>
+
+                <!-- 4 Gold Line-Art Highlight Icons Below Booking Bar -->
+                <div class="mt-8 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-champagne/40 flex items-center justify-center text-champagne shrink-0">
+                      <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-stone-200 font-medium leading-snug">Jaminan Harga<br/>Terbaik</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-champagne/40 flex items-center justify-center text-champagne shrink-0">
+                      <i data-lucide="wifi" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-stone-200 font-medium leading-snug">WiFi Cepat<br/>Di Semua Area</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-champagne/40 flex items-center justify-center text-champagne shrink-0">
+                      <i data-lucide="concierge-bell" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-stone-200 font-medium leading-snug">Layanan Resepsionis<br/>Siaga 24/7</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-champagne/40 flex items-center justify-center text-champagne shrink-0">
+                      <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs text-stone-200 font-medium leading-snug">Kamar Bersih &<br/>Fasilitas Premium</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION: OUR ROOMS & SUITES (Asymmetric 1:3 Split Layout) -->
+            <div class="max-w-6xl mx-auto px-4 sm:px-8 py-16 lg:py-20">
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Left Editorial Column -->
+                <div class="lg:col-span-4 space-y-4">
+                  <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold block">
+                    OUR ROOMS & SUITES
+                  </span>
+                  <h3 class="font-serif text-3xl sm:text-4xl text-charcoalTeal leading-tight">
+                    Elegance in Every <span class="italic">Detail</span>
+                  </h3>
+                  <p id="about-us-summary" class="text-sm text-warmSlate leading-relaxed">
+                    Setiap kamar di Penginapan TIPALAYO dirancang khusus untuk kenyamanan istirahat Anda, dilengkapi pendingin ruangan, tempat tidur berkualitas hotel bintang lima, dan suasana tenang.
+                  </p>
+                  <div class="pt-2">
+                    <button onclick="window.app.navigate('katalog')" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-charcoalTeal/30 hover:border-champagne hover:bg-champagne hover:text-white text-xs font-semibold tracking-wider uppercase transition">
+                      <span>Lihat Semua Kamar</span>
+                      <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Right Room Cards Grid -->
+                <div id="landing-rooms-grid" class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <!-- Populated dynamically via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION: HOTEL AMENITIES (Deep Emerald Night Split Section) -->
+            <div id="section-amenities" class="bg-emeraldNight text-white overflow-hidden">
+              <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12">
+                <!-- Scenic Visual Left -->
+                <div class="lg:col-span-5 relative min-h-[300px] lg:min-h-full">
+                  <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80" alt="Fasilitas TIPALAYO" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x600/0F262A/C5A367?text=Fasilitas+TIPALAYO'" />
+                  <div class="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-transparent to-emeraldNight"></div>
+                </div>
+
+                <!-- Right Amenities Matrix -->
+                <div class="lg:col-span-7 p-8 sm:p-12 lg:p-16 space-y-6">
+                  <div class="space-y-2">
+                    <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold block">
+                      HOTEL AMENITIES
+                    </span>
+                    <h3 class="font-serif text-3xl sm:text-4xl text-white leading-tight">
+                      Fasilitas Kelas Atas untuk <span class="italic text-champagne">Istirahat Sempurna</span>
+                    </h3>
+                    <p class="text-sm text-stone-300 leading-relaxed max-w-xl">
+                      Nikmati kemudahan menginap baik untuk perjalanan dinas, liburan keluarga, maupun transit dengan dukungan fasilitas lengkap di Penginapan TIPALAYO.
+                    </p>
+                  </div>
+
+                  <!-- 3x2 Luxury Icon Grid -->
+                  <div class="grid grid-cols-2 sm:grid-cols-3 border border-white/10 rounded-2xl overflow-hidden divide-x divide-y divide-white/10 bg-emeraldDeep/40">
+                    <div class="p-5 flex flex-col items-center text-center gap-2.5 hover:bg-white/5 transition">
+                      <i data-lucide="wind" class="w-6 h-6 text-champagne"></i>
+                      <span class="text-xs font-medium text-stone-200">Full AC & Air Panas</span>
+                    </div>
+                    <div class="p-5 flex flex-col items-center text-center gap-2.5 hover:bg-white/5 transition">
+                      <i data-lucide="car" class="w-6 h-6 text-champagne"></i>
+                      <span class="text-xs font-medium text-stone-200">Area Parkir Luas & Aman</span>
+                    </div>
+                    <div class="p-5 flex flex-col items-center text-center gap-2.5 hover:bg-white/5 transition">
+                      <i data-lucide="coffee" class="w-6 h-6 text-champagne"></i>
+                      <span class="text-xs font-medium text-stone-200">Layanan Kopi & Sarapan</span>
+                    </div>
+                    <div class="p-5 flex flex-col items-center text-center gap-2.5 hover:bg-white/5 transition">
+                      <i data-lucide="tv" class="w-6 h-6 text-champagne"></i>
+                      <span class="text-xs font-medium text-stone-200">Smart TV & WiFi Cepat</span>
+                    </div>
+                    <div class="p-5 flex flex-col items-center text-center gap-2.5 hover:bg-white/5 transition">
+                      <i data-lucide="shield" class="w-6 h-6 text-champagne"></i>
+                      <span class="text-xs font-medium text-stone-200">Keamanan CCTV 24 Jam</span>
+                    </div>
+                    <div class="p-5 flex flex-col items-center text-center gap-2.5 hover:bg-white/5 transition">
+                      <i data-lucide="map-pin" class="w-6 h-6 text-champagne"></i>
+                      <span class="text-xs font-medium text-stone-200">Lokasi Pusat Strategis</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <button onclick="window.app.navigate('katalog')" class="px-6 py-3 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-semibold uppercase tracking-wider transition inline-flex items-center gap-2">
+                      <span>Pesan Kamar Sekarang</span>
+                      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION: EDITORIAL PROMO / WISATA & GUEST REVIEWS -->
+            <div class="max-w-6xl mx-auto px-4 sm:px-8 py-16 space-y-16">
+              <!-- Editorial Articles Preview -->
+              <div>
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                  <div>
+                    <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold block">EXPLORE & PROMO</span>
+                    <h3 class="font-serif text-3xl text-charcoalTeal mt-1">Berita, Kuliner & <span class="italic">Info Wisata</span></h3>
+                  </div>
+                  <button onclick="window.app.navigate('artikel')" class="self-start sm:self-auto inline-flex items-center gap-2 px-5 py-2 rounded-full border border-charcoalTeal/30 hover:border-champagne text-xs font-semibold uppercase tracking-wider transition">
+                    <span>Semua Artikel</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+                <div id="landing-articles-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+
+              <!-- Guest Reviews Section -->
+              <div class="pt-8 border-t border-sandBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-4 space-y-2">
+                  <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold block">GUEST REVIEWS</span>
+                  <h3 class="font-serif text-3xl text-charcoalTeal">Apa Kata Tamu <span class="italic">Kami</span></h3>
+                  <p class="text-sm text-warmSlate">Pengalaman nyata dari para tamu yang telah menginap bersama Penginapan TIPALAYO.</p>
+                </div>
+                <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div class="bg-white rounded-2xl p-6 border border-sandBorder shadow-sm space-y-3">
+                    <div class="flex items-center gap-1 text-champagne text-sm">★★★★★</div>
+                    <p class="text-xs sm:text-sm text-warmSlate italic leading-relaxed">
+                      "Kamarnya sangat bersih, wangi, dan proses booking serta cetak invoice digitalnya sangat modern. Resepsionis ramah dan responsif lewat WhatsApp."
+                    </p>
+                    <div class="pt-2 flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-emeraldNight text-champagne flex items-center justify-center font-serif font-bold text-sm">R</div>
+                      <div>
+                        <p class="text-xs font-bold text-charcoalTeal">Rahmat Hidayat</p>
+                        <p class="text-[11px] text-warmSlate">Perjalanan Dinas</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-white rounded-2xl p-6 border border-sandBorder shadow-sm space-y-3">
+                    <div class="flex items-center gap-1 text-champagne text-sm">★★★★★</div>
+                    <p class="text-xs sm:text-sm text-warmSlate italic leading-relaxed">
+                      "Suasana tenang, lokasi dekat ke pusat kuliner dan wisata. Harga sangat bersahabat dengan fasilitas setara hotel berbintang."
+                    </p>
+                    <div class="pt-2 flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-champagne text-white flex items-center justify-center font-serif font-bold text-sm">S</div>
+                      <div>
+                        <p class="text-xs font-bold text-charcoalTeal">Siti Nurhaliza</p>
+                        <p class="text-[11px] text-warmSlate">Liburan Keluarga</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROYAL HAVEN FOOTER -->
+            <footer class="bg-emeraldNight text-white border-t border-white/10">
+              <div class="max-w-6xl mx-auto px-4 sm:px-8 py-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-white/10">
+                  <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-champagne text-white flex items-center justify-center font-serif font-bold">T</div>
+                      <span class="font-serif text-xl tracking-wide font-semibold">PENGINAPAN TIPALAYO</span>
+                    </div>
+                    <p id="footer-about-text" class="text-xs text-stone-400 leading-relaxed">
+                      Penginapan pilihan utama dengan pelayanan hangat, kamar berstandar tinggi, dan kemudahan reservasi online.
+                    </p>
+                  </div>
+                  <div class="space-y-2 text-xs text-stone-300">
+                    <p class="text-champagne uppercase tracking-widest font-semibold">Lokasi & Alamat</p>
+                    <p id="footer-address-text" class="leading-relaxed">Jl. Poros Utama Tipalayo, Kawasan Strategis, Indonesia</p>
+                  </div>
+                  <div class="space-y-2 text-xs text-stone-300">
+                    <p class="text-champagne uppercase tracking-widest font-semibold">Hubungi Resepsionis</p>
+                    <p id="footer-phone-text">WhatsApp: +62 812-3456-7890</p>
+                    <p id="footer-bank-text" class="text-stone-400">Pembayaran Resmi: Bank BRI / Mandiri / BCA a.n Penginapan TIPALAYO</p>
+                  </div>
+                </div>
+                <div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-2">
+                  <p>© 2026 Penginapan TIPALAYO. All rights reserved.</p>
+                  <p class="text-champagne">Luxury Stays • Unforgettable Experiences</p>
+                </div>
+              </div>
+            </footer>
+          </section>
+
+          <!-- ==========================================
+               VIEW 2: KATALOG KAMAR & CEK KETERSEDIAAN
+               ========================================== -->
+          <section id="view-katalog" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">OUR ROOMS & SUITES</span>
+                <h2 class="font-serif text-3xl sm:text-4xl text-charcoalTeal mt-1">Katalog Kamar & <span class="italic">Reservasi</span></h2>
+                <p class="text-sm text-warmSlate mt-1">Pilih tipe kamar yang sesuai dengan kebutuhan istirahat Anda dan pesan secara instan.</p>
+              </div>
+              <!-- Filter Controls -->
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="filter-kamar-tipe" onchange="window.app.renderKatalogKamar()" class="px-3.5 py-2 rounded-xl bg-white border border-sandBorder text-xs font-semibold text-charcoalTeal focus:outline-none focus:border-champagne">
+                  <option value="ALL">Semua Tipe Kamar</option>
+                  <option value="Standard">Standard Room</option>
+                  <option value="Deluxe">Deluxe Room</option>
+                  <option value="Family Suite">Family Suite</option>
+                  <option value="VIP">VIP / Executive</option>
+                </select>
+                <select id="filter-kamar-status" onchange="window.app.renderKatalogKamar()" class="px-3.5 py-2 rounded-xl bg-white border border-sandBorder text-xs font-semibold text-charcoalTeal focus:outline-none focus:border-champagne">
+                  <option value="ALL">Semua Status</option>
+                  <option value="Tersedia">Tersedia</option>
+                  <option value="Terisi">Terisi</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="katalog-rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Populated dynamically -->
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 3: PESANAN SAYA & E-INVOICE (TAMU / PUBLIK)
+               ========================================== -->
+          <section id="view-pesanan" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">RESERVATION & BILLING</span>
+                <h2 class="font-serif text-3xl sm:text-4xl text-charcoalTeal mt-1">Daftar Pesanan & <span class="italic">E-Invoice Resmi</span></h2>
+                <p class="text-sm text-warmSlate mt-1">Pantau status reservasi kamar, unggah bukti pembayaran, dan cetak E-Invoice resmi Penginapan TIPALAYO.</p>
+              </div>
+              <button onclick="window.app.navigate('katalog')" class="self-start md:self-auto px-5 py-2.5 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-semibold uppercase tracking-wider transition flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Buat Reservasi Baru</span>
+              </button>
+            </div>
+
+            <div id="guest-reservasi-list" class="space-y-4">
+              <!-- Populated dynamically -->
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 4: BERITA, WISATA & PROMO (CMS BLOG)
+               ========================================== -->
+          <section id="view-artikel" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">JOURNAL & PROMOTIONS</span>
+                <h2 class="font-serif text-3xl sm:text-4xl text-charcoalTeal mt-1">Berita, Promo & <span class="italic">Destinasi Wisata</span></h2>
+                <p class="text-sm text-warmSlate mt-1">Informasi promo menginap terbaru dan rekomendasi destinasi menarik di sekitar Penginapan TIPALAYO.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <select id="filter-artikel-kategori" onchange="window.app.renderArtikelPublik()" class="px-4 py-2 rounded-xl bg-white border border-sandBorder text-xs font-semibold text-charcoalTeal">
+                  <option value="ALL">Semua Kategori</option>
+                  <option value="Promo">Promo Menginap</option>
+                  <option value="Wisata">Info Wisata & Kuliner</option>
+                  <option value="Berita">Pengumuman</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="publik-artikel-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Populated dynamically -->
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 5: ADMIN — RINGKASAN DASHBOARD
+               ========================================== -->
+          <section id="view-admin-dashboard" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">EXECUTIVE OVERVIEW</span>
+                <h2 class="font-serif text-3xl text-charcoalTeal mt-1">Dashboard Pengelola <span class="italic">TIPALAYO</span></h2>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="window.app.openKamarModal()" class="px-4 py-2 rounded-xl bg-emeraldNight text-white text-xs font-semibold hover:bg-emeraldDeep transition flex items-center gap-1.5">
+                  <i data-lucide="plus-circle" class="w-4 h-4 text-champagne"></i>
+                  <span>Tambah Kamar</span>
+                </button>
+                <button onclick="window.app.navigate('admin-cms')" class="px-4 py-2 rounded-xl bg-champagne text-white text-xs font-semibold hover:bg-bronzeHover transition flex items-center gap-1.5">
+                  <i data-lucide="settings" class="w-4 h-4"></i>
+                  <span>Pengaturan CMS</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 4 KPI Stat Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div class="bg-white rounded-2xl p-5 border border-sandBorder shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs uppercase tracking-wider text-warmSlate font-semibold">Total Kamar</span>
+                  <div class="w-9 h-9 rounded-xl bg-emeraldNight/10 text-emeraldNight flex items-center justify-center">
+                    <i data-lucide="bed" class="w-4 h-4"></i>
+                  </div>
+                </div>
+                <p id="stat-total-kamar" class="font-serif text-3xl font-bold text-charcoalTeal mt-3">0</p>
+                <p class="text-xs text-warmSlate mt-1">Unit terdaftar di katalog</p>
+              </div>
+
+              <div class="bg-white rounded-2xl p-5 border border-sandBorder shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs uppercase tracking-wider text-warmSlate font-semibold">Kamar Tersedia</span>
+                  <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                  </div>
+                </div>
+                <p id="stat-kamar-tersedia" class="font-serif text-3xl font-bold text-emerald-700 mt-3">0</p>
+                <p class="text-xs text-warmSlate mt-1">Siap menerima Check-In</p>
+              </div>
+
+              <div class="bg-white rounded-2xl p-5 border border-sandBorder shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs uppercase tracking-wider text-warmSlate font-semibold">Total Reservasi</span>
+                  <div class="w-9 h-9 rounded-xl bg-champagne/20 text-bronzeHover flex items-center justify-center">
+                    <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+                  </div>
+                </div>
+                <p id="stat-total-reservasi" class="font-serif text-3xl font-bold text-charcoalTeal mt-3">0</p>
+                <p class="text-xs text-warmSlate mt-1">Transaksi booking tercatat</p>
+              </div>
+
+              <div class="bg-emeraldNight text-white rounded-2xl p-5 border border-champagne/30 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs uppercase tracking-wider text-champagne font-semibold">Pendapatan Lunas</span>
+                  <div class="w-9 h-9 rounded-xl bg-champagne/20 text-champagne flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-4 h-4"></i>
+                  </div>
+                </div>
+                <p id="stat-total-pendapatan" class="font-serif text-2xl font-bold text-white mt-3">Rp 0</p>
+                <p class="text-xs text-stone-300 mt-1">Akumulasi invoice berstatus Lunas</p>
+              </div>
+            </div>
+
+            <!-- Recent Reservations Quick Table -->
+            <div class="bg-white rounded-2xl border border-sandBorder shadow-sm overflow-hidden">
+              <div class="p-5 border-b border-sandBorder flex items-center justify-between">
+                <div>
+                  <h3 class="font-serif text-xl font-semibold text-charcoalTeal">Reservasi Terbaru</h3>
+                  <p class="text-xs text-warmSlate">Daftar pemesanan kamar terakhir yang masuk ke sistem</p>
+                </div>
+                <button onclick="window.app.navigate('admin-reservasi')" class="text-xs font-semibold text-champagne hover:underline">
+                  Kelola Semua →
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-alabaster text-warmSlate uppercase text-[11px] tracking-wider border-b border-sandBorder">
+                      <th class="py-3.5 px-4">Invoice / Kode</th>
+                      <th class="py-3.5 px-4">Tamu</th>
+                      <th class="py-3.5 px-4">Kamar & Tanggal</th>
+                      <th class="py-3.5 px-4">Total Tagihan</th>
+                      <th class="py-3.5 px-4">Status</th>
+                      <th class="py-3.5 px-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-recent-table" class="divide-y divide-sandBorder">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 6: ADMIN — MANAJEMEN KAMAR (CRUD + UPLOAD FOTO)
+               ========================================== -->
+          <section id="view-admin-kamar" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">ROOM INVENTORY CRUD</span>
+                <h2 class="font-serif text-3xl text-charcoalTeal mt-1">Manajemen Data <span class="italic">Kamar</span></h2>
+                <p class="text-sm text-warmSlate">Kelola daftar kamar, tarif per malam, fasilitas, serta upload foto kamar langsung dari perangkat atau URL.</p>
+              </div>
+              <button onclick="window.app.openKamarModal()" class="self-start sm:self-auto px-5 py-2.5 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-semibold uppercase tracking-wider transition flex items-center gap-2 shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Tambah Kamar Baru</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-sandBorder shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-alabaster text-warmSlate uppercase text-[11px] tracking-wider border-b border-sandBorder">
+                      <th class="py-3.5 px-4">Foto & Nama Kamar</th>
+                      <th class="py-3.5 px-4">Kode & Tipe</th>
+                      <th class="py-3.5 px-4">Harga / Malam</th>
+                      <th class="py-3.5 px-4">Kapasitas & Fasilitas</th>
+                      <th class="py-3.5 px-4">Status</th>
+                      <th class="py-3.5 px-4 text-right">Aksi CRUD</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-kamar-tbody" class="divide-y divide-sandBorder">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 7: ADMIN — MANAJEMEN RESERVASI & INVOICE
+               ========================================== -->
+          <section id="view-admin-reservasi" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">BOOKING & INVOICE MANAGEMENT</span>
+                <h2 class="font-serif text-3xl text-charcoalTeal mt-1">Manajemen Reservasi & <span class="italic">Verifikasi Pembayaran</span></h2>
+                <p class="text-sm text-warmSlate">Verifikasi bukti bayar tamu, ubah status Check-In/Lunas, kirim pesan WA instan, dan cetak E-Invoice resmi.</p>
+              </div>
+              <button onclick="window.app.navigate('katalog')" class="self-start sm:self-auto px-5 py-2.5 rounded-full bg-emeraldNight hover:bg-emeraldDeep text-white text-xs font-semibold uppercase tracking-wider transition flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4 text-champagne"></i>
+                <span>Input Booking Manual</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-sandBorder shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-alabaster text-warmSlate uppercase text-[11px] tracking-wider border-b border-sandBorder">
+                      <th class="py-3.5 px-4">No. Invoice & Kode</th>
+                      <th class="py-3.5 px-4">Data Tamu</th>
+                      <th class="py-3.5 px-4">Kamar & Durasi</th>
+                      <th class="py-3.5 px-4">Tagihan & Bukti</th>
+                      <th class="py-3.5 px-4">Status Booking & Bayar</th>
+                      <th class="py-3.5 px-4 text-right">Aksi & Invoice</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-reservasi-tbody" class="divide-y divide-sandBorder">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 8: ADMIN — PENGATURAN WEB & CMS (PROFIL + ARTIKEL)
+               ========================================== -->
+          <section id="view-admin-cms" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-10">
+            <div class="border-b border-sandBorder pb-6">
+              <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">CONTENT MANAGEMENT SYSTEM</span>
+              <h2 class="font-serif text-3xl text-charcoalTeal mt-1">Pengaturan Profil Web, Foto Banner & <span class="italic">Artikel CMS</span></h2>
+              <p class="text-sm text-warmSlate">Semua pengaturan gambar dilengkapi fitur <strong>Upload Foto Langsung dari HP/Laptop</strong> maupun <strong>Input Link URL Foto</strong>.</p>
+            </div>
+
+            <!-- Form Pengaturan Profil Utama & Banner CMS -->
+            <form onsubmit="window.app.saveProfilCMS(event)" class="bg-white rounded-2xl border border-sandBorder p-6 sm:p-8 shadow-sm space-y-6">
+              <div class="flex items-center justify-between border-b border-sandBorder pb-4">
+                <div>
+                  <h3 class="font-serif text-2xl text-charcoalTeal">1. Identitas & Tampilan Beranda Penginapan</h3>
+                  <p class="text-xs text-warmSlate">Perubahan pada form ini langsung memperbarui Landing Page, Kop E-Invoice, dan Nomor Tombol WhatsApp Melayang.</p>
+                </div>
+                <button type="submit" class="px-6 py-2.5 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-semibold uppercase tracking-wider transition shadow-sm">
+                  Simpan Pengaturan
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-charcoalTeal mb-2">Judul Utama Hero (Landing Page)</label>
+                  <input type="text" id="cms-judul-hero" required class="w-full px-4 py-2.5 rounded-xl border border-sandBorder bg-alabaster text-sm focus:outline-none focus:border-champagne" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-charcoalTeal mb-2">Nomor WhatsApp Resepsionis (Gunakan 628...)</label>
+                  <input type="text" id="cms-telepon-wa" required placeholder="6281234567890" class="w-full px-4 py-2.5 rounded-xl border border-sandBorder bg-alabaster text-sm focus:outline-none focus:border-champagne" />
+                  <p class="text-[11px] text-warmSlate mt-1">Terhubung otomatis ke tombol Logo WhatsApp di samping layar.</p>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-charcoalTeal mb-2">Subjudul Hero</label>
+                  <input type="text" id="cms-subjudul-hero" required class="w-full px-4 py-2.5 rounded-xl border border-sandBorder bg-alabaster text-sm focus:outline-none focus:border-champagne" />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-charcoalTeal mb-2">Deskripsi Tentang Penginapan TIPALAYO</label>
+                  <textarea id="cms-tentang-kami" rows="3" required class="w-full px-4 py-2.5 rounded-xl border border-sandBorder bg-alabaster text-sm focus:outline-none focus:border-champagne"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-charcoalTeal mb-2">Alamat Lengkap Penginapan</label>
+                  <input type="text" id="cms-alamat" required class="w-full px-4 py-2.5 rounded-xl border border-sandBorder bg-alabaster text-sm focus:outline-none focus:border-champagne" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-charcoalTeal mb-2">Informasi Rekening Bank (Tampil di E-Invoice)</label>
+                  <input type="text" id="cms-info-rekening" required placeholder="BRI 1234-5678-9012 a.n Penginapan TIPALAYO" class="w-full px-4 py-2.5 rounded-xl border border-sandBorder bg-alabaster text-sm focus:outline-none focus:border-champagne" />
+                </div>
+
+                <!-- DUAL INPUT FOTO 1: LOGO PENGINAPAN -->
+                <div class="p-4 rounded-2xl bg-alabaster border border-sandBorder space-y-3">
+                  <label class="block text-xs font-bold uppercase tracking-wider text-charcoalTeal">Logo Penginapan & Kop Invoice (Upload File / URL)</label>
+                  <div class="flex items-center gap-4">
+                    <img id="preview-cms-logo" src="https://placehold.co/120x120/0F262A/C5A367?text=TPL" alt="Preview Logo" class="w-16 h-16 rounded-xl object-cover border border-champagne shrink-0 bg-emeraldNight" />
+                    <div class="flex-1 space-y-2">
+                      <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emeraldNight text-white text-xs font-semibold cursor-pointer hover:bg-emeraldDeep transition">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-champagne"></i>
+                        <span>Upload File Logo</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="window.app.handleImageUpload(event, 'cms-logo-url', 'preview-cms-logo')" />
+                      </label>
+                      <input type="text" id="cms-logo-url" oninput="document.getElementById('preview-cms-logo').src = this.value || 'https://placehold.co/120x120/0F262A/C5A367?text=TPL'" placeholder="Atau tempel URL gambar logo di sini..." class="w-full px-3 py-1.5 rounded-lg border border-sandBorder bg-white text-xs focus:outline-none focus:border-champagne" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- DUAL INPUT FOTO 2: BANNER HERO UTAMA -->
+                <div class="p-4 rounded-2xl bg-alabaster border border-sandBorder space-y-3">
+                  <label class="block text-xs font-bold uppercase tracking-wider text-charcoalTeal">Foto Banner Utama Beranda (Upload File / URL)</label>
+                  <div class="flex items-center gap-4">
+                    <img id="preview-cms-banner" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" alt="Preview Banner" class="w-24 h-16 rounded-xl object-cover border border-champagne shrink-0 bg-emeraldNight" />
+                    <div="flex-1 space-y-2">
+                      <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emeraldNight text-white text-xs font-semibold cursor-pointer hover:bg-emeraldDeep transition">
+                        <i data-lucide="image-plus" class="w-4 h-4 text-champagne"></i>
+                        <span>Upload Foto Banner</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="window.app.handleImageUpload(event, 'cms-banner-url', 'preview-cms-banner')" />
+                      </label>
+                      <input type="text" id="cms-banner-url" oninput="document.getElementById('preview-cms-banner').src = this.value" placeholder="Atau tempel URL foto banner di sini..." class="w-full px-3 py-1.5 rounded-lg border border-sandBorder bg-white text-xs focus:outline-none focus:border-champagne mt-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- CRUD ARTIKEL, WISATA & PROMO -->
+            <div class="bg-white rounded-2xl border border-sandBorder p-6 sm:p-8 shadow-sm space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sandBorder pb-4">
+                <div>
+                  <h3 class="font-serif text-2xl text-charcoalTeal">2. Manajemen Artikel, Berita & Promo</h3>
+                  <p class="text-xs text-warmSlate">Publikasikan artikel wisata sekitar TIPALAYO atau promo diskon kamar.</p>
+                </div>
+                <button type="button" onclick="window.app.openArtikelModal()" class="self-start sm:self-auto px-5 py-2.5 rounded-full bg-emeraldNight hover:bg-emeraldDeep text-white text-xs font-semibold uppercase tracking-wider transition flex items-center gap-2">
+                  <i data-lucide="plus" class="w-4 h-4 text-champagne"></i>
+                  <span>Tulis Artikel / Promo</span>
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-alabaster text-warmSlate uppercase text-[11px] tracking-wider border-b border-sandBorder">
+                      <th class="py-3 px-4">Gambar & Judul Artikel</th>
+                      <th class="py-3 px-4">Kategori</th>
+                      <th class="py-3 px-4">Tanggal Publikasi</th>
+                      <th class="py-3 px-4 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-artikel-tbody" class="divide-y divide-sandBorder">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               VIEW 9: ADMIN — MANAJEMEN DATA TAMU (HYBRID LOGIN)
+               ========================================== -->
+          <section id="view-admin-tamu" class="view-section hidden max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sandBorder pb-6">
+              <div>
+                <span class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold">GUEST MEMBER ACCOUNTS</span>
+                <h2 class="font-serif text-3xl text-charcoalTeal mt-1">Manajemen Akun <span class="italic">Tamu & Member</span></h2>
+                <p class="text-sm text-warmSlate">Kelola kredensial login Tamu/Member (Username & Password) yang divalidasi langsung ke tabel <code class="text-xs font-mono bg-sandBorder/50 px-1.5 py-0.5 rounded">tamu</code>.</p>
+              </div>
+              <button onclick="window.app.openTamuModal()" class="self-start sm:self-auto px-5 py-2.5 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-semibold uppercase tracking-wider transition flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <span>Tambah Akun Tamu</span>
+              </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-sandBorder shadow-sm overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-alabaster text-warmSlate uppercase text-[11px] tracking-wider border-b border-sandBorder">
+                      <th class="py-3.5 px-4">Nama Lengkap Tamu</th>
+                      <th class="py-3.5 px-4">Username Login</th>
+                      <th class="py-3.5 px-4">No. HP / WhatsApp</th>
+                      <th class="py-3.5 px-4">Password</th>
+                      <th class="py-3.5 px-4 text-right">Aksi CRUD</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-tamu-tbody" class="divide-y divide-sandBorder">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+
+    <!-- 3. FLOATING WHATSAPP LOGO WIDGET (Samping Kanan Layar) -->
+    <a id="floating-wa-btn" href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" class="no-print fixed bottom-20 md:bottom-7 right-4 sm:right-6 z-40 group flex items-center gap-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white p-3.5 sm:px-4 sm:py-3 rounded-full shadow-2xl wa-pulse-btn transition-all duration-300">
+      <!-- Official WhatsApp SVG Icon -->
+      <svg class="w-6 h-6 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.625.846 5.059 2.284 7.033l-2.284 4.967 5.097-2.254c1.926 1.412 4.309 2.254 6.903 2.254 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
+      </svg>
+      <div class="hidden sm:block text-left pr-1">
+        <span class="block text-[9px] uppercase tracking-wider font-semibold text-white/90 leading-none">Butuh Bantuan?</span>
+        <span class="block text-xs font-bold leading-tight">Chat WA TIPALAYO</span>
+      </div>
+    </a>
+
+    <!-- 4. MOBILE FLOATING BOTTOM NAVIGATION BAR -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 glass-dark text-white border-t border-white/15 px-2 py-1.5 flex items-center justify-around no-print">
+      <button onclick="window.app.navigate('beranda')" data-nav="beranda" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-[10px] gap-1">
+        <i data-lucide="compass" class="w-4 h-4 text-champagne"></i>
+        <span>Beranda</span>
+      </button>
+      <button onclick="window.app.navigate('katalog')" data-nav="katalog" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-[10px] gap-1">
+        <i data-lucide="bed-double" class="w-4 h-4 text-champagne"></i>
+        <span>Kamar</span>
+      </button>
+      <button onclick="window.app.navigate('pesanan')" data-nav="pesanan" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-[10px] gap-1">
+        <i data-lucide="receipt" class="w-4 h-4 text-champagne"></i>
+        <span>Invoice</span>
+      </button>
+      <button onclick="window.app.navigate('artikel')" data-nav="artikel" class="nav-item flex flex-col items-center py-1 px-2 rounded-xl text-[10px] gap-1">
+        <i data-lucide="newspaper" class="w-4 h-4 text-champagne"></i>
+        <span>Promo</span>
+      </button>
+      <button id="mobile-admin-nav-btn" onclick="window.app.handleMobileAdminOrAuth()" class="flex flex-col items-center py-1 px-2 rounded-xl text-[10px] gap-1">
+        <i data-lucide="shield-user" class="w-4 h-4 text-champagne"></i>
+        <span id="mobile-admin-nav-label">Akun</span>
+      </button>
+    </nav>
+
+    <!-- =================================================================
+         MODALS COLLECTION (BOOKING, E-INVOICE, UPLOAD BUKTI, AUTH, CRUD)
+         ================================================================= -->
+
+    <!-- MODAL 1: E-INVOICE RESMI MODERN (SIAP CETAK / SIMPAN PDF) -->
+    <div id="invoice-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/80 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto flex items-center justify-center">
+      <div class="w-full max-w-3xl my-auto space-y-4">
+        <!-- Action Bar Above Invoice (Hidden on Print) -->
+        <div class="no-print flex flex-wrap items-center justify-between gap-2 bg-emeraldNight text-white px-5 py-3.5 rounded-2xl border border-champagne/40 shadow-xl">
+          <div class="flex items-center gap-2">
+            <i data-lucide="printer" class="w-4 h-4 text-champagne"></i>
+            <span class="text-xs sm:text-sm font-semibold">Pratinjau E-Invoice Resmi Penginapan TIPALAYO</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Cetak / Simpan PDF</span>
+            </button>
+            <button onclick="window.app.closeModal('invoice-modal-backdrop')" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold">
+              Tutup
+            </button>
+          </div>
+        </div>
+
+        <!-- THE PRINTABLE LUXURY E-INVOICE SHEET -->
+        <div id="invoice-printable-area" class="bg-white text-charcoalTeal rounded-2xl border border-sandBorder shadow-2xl overflow-hidden">
+          <!-- Invoice Top Luxury Header -->
+          <div class="bg-emeraldNight text-white p-6 sm:p-8 border-b-4 border-champagne flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+              <img id="inv-logo" src="https://placehold.co/120x120/0F262A/C5A367?text=TPL" alt="Logo" class="w-16 h-16 rounded-2xl object-cover border-2 border-champagne bg-emeraldDeep" />
+              <div>
+                <span class="text-[10px] uppercase tracking-[0.28em] text-champagne font-semibold block">OFFICIAL HOSPITALITY E-INVOICE</span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-wide text-white">PENGINAPAN TIPALAYO</h2>
+                <p id="inv-hotel-address" class="text-xs text-stone-300 mt-0.5">Jl. Poros Utama Tipalayo, Indonesia</p>
+              </div>
+            </div>
+            <div class="sm:text-right space-y-1">
+              <span id="inv-stamp-badge" class="inline-block px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest border">
+                LUNAS / PAID
+              </span>
+              <p class="text-xs text-stone-300 pt-1">No. Invoice: <strong id="inv-number" class="text-champagne font-mono">INV/TPL/2026/0001</strong></p>
+              <p class="text-xs text-stone-300">Kode Booking: <strong id="inv-booking-code" class="text-white font-mono">TPL-8821</strong></p>
+            </div>
+          </div>
+
+          <!-- Invoice Body -->
+          <div class="p-6 sm:p-8 space-y-6">
+            <!-- Guest & Stay Metadata -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-alabaster border border-sandBorder text-xs">
+              <div>
+                <p class="text-[10px] uppercase tracking-wider text-warmSlate font-semibold">Diterbitkan Kepada (Tamu)</p>
+                <p id="inv-guest-name" class="text-sm font-bold text-charcoalTeal mt-1">-</p>
+                <p id="inv-guest-phone" class="text-warmSlate mt-0.5">-</p>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-wider text-warmSlate font-semibold">Jadwal Menginap</p>
+                <p class="mt-1">Check-In: <strong id="inv-checkin" class="text-charcoalTeal">-</strong></p>
+                <p class="mt-0.5">Check-Out: <strong id="inv-checkout" class="text-charcoalTeal">-</strong></p>
+              </div>
+              <div>
+                <p class="text-[10px] uppercase tracking-wider text-warmSlate font-semibold">Status Reservasi</p>
+                <p id="inv-booking-status" class="text-sm font-bold text-emeraldNight mt-1">-</p>
+                <p id="inv-created-date" class="text-warmSlate mt-0.5">-</p>
+              </div>
+            </div>
+
+            <!-- Itemized Breakdown Table -->
+            <div class="border border-sandBorder rounded-2xl overflow-hidden">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr class="bg-emeraldNight text-white uppercase text-[11px] tracking-wider">
+                    <th class="py-3 px-4">Deskripsi Unit Kamar</th>
+                    <th class="py-3 px-4 text-center">Durasi</th>
+                    <th class="py-3 px-4 text-right">Harga / Malam</th>
+                    <th class="py-3 px-4 text-right">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-sandBorder">
+                  <tr>
+                    <td class="py-4 px-4">
+                      <p id="inv-room-name" class="font-serif font-bold text-base text-charcoalTeal">-</p>
+                      <p id="inv-notes" class="text-xs text-warmSlate mt-0.5">Catatan: -</p>
+                    </td>
+                    <td id="inv-nights" class="py-4 px-4 text-center font-semibold">1 Malam</td>
+                    <td id="inv-rate" class="py-4 px-4 text-right font-medium">Rp 0</td>
+                    <td id="inv-subtotal" class="py-4 px-4 text-right font-bold text-charcoalTeal">Rp 0</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="bg-alabaster border-t border-sandBorder">
+                    <td colspan="3" class="py-3.5 px-4 text-right font-bold uppercase text-xs tracking-wider text-warmSlate">Total Tagihan Resmi</td>
+                    <td id="inv-grand-total" class="py-3.5 px-4 text-right font-serif text-xl font-bold text-emeraldNight">Rp 0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Payment Info & QR Code Verification -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center pt-2 border-t border-sandBorder">
+              <div class="sm:col-span-8 space-y-2 text-xs">
+                <p class="text-[11px] uppercase tracking-wider font-bold text-champagne">Informasi Pembayaran & Ketentuan</p>
+                <p id="inv-bank-info" class="font-semibold text-charcoalTeal bg-alabaster px-3.5 py-2 rounded-xl border border-sandBorder">
+                  Transfer Resmi: BRI / Mandiri a.n Penginapan TIPALAYO
+                </p>
+                <p class="text-warmSlate leading-relaxed">
+                  • Waktu Check-In mulai pukul 14:00 WITA dan Check-Out maksimal pukul 12:00 WITA.<br/>
+                  • Tunjukkan E-Invoice ini (cetak atau layar HP) kepada resepsionis saat kedatangan.
+                </p>
+              </div>
+              <div class="sm:col-span-4 flex flex-col items-center sm:items-end justify-center">
+                <div id="inv-qr-box" class="p-2.5 rounded-2xl border border-sandBorder bg-white shadow-sm">
+                  <!-- Dynamic SVG QR Code generated via JS -->
+                </div>
+                <span class="text-[10px] uppercase tracking-widest text-warmSlate mt-1.5 font-semibold">Validasi Digital TIPALAYO</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: FORM PEMESANAN KAMAR (TAMU / PUBLIK) -->
+    <div id="booking-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/75 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 border border-sandBorder shadow-2xl space-y-5 my-auto">
+        <div class="flex items-center justify-between border-b border-sandBorder pb-4">
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-champagne font-semibold">INSTANT RESERVATION</span>
+            <h3 class="font-serif text-2xl text-charcoalTeal">Form Pemesanan Kamar</h3>
+          </div>
+          <button onclick="window.app.closeModal('booking-modal-backdrop')" class="p-1.5 rounded-lg text-warmSlate hover:bg-alabaster">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <form onsubmit="window.app.submitBookingForm(event)" class="space-y-4 text-xs sm:text-sm">
+          <input type="hidden" id="book-kamar-id" />
+          <div class="p-3.5 rounded-xl bg-alabaster border border-sandBorder flex items-center justify-between">
+            <div>
+              <p id="book-kamar-nama" class="font-serif font-bold text-base text-charcoalTeal">-</p>
+              <p id="book-kamar-harga-label" class="text-xs text-champagne font-semibold">Rp 0 / malam</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emeraldNight text-champagne text-[11px] font-semibold">Tersedia</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-xs font-semibold text-charcoalTeal mb-1">Nama Lengkap Tamu *</label>
+              <input type="text" id="book-nama-tamu" required placeholder="Nama sesuai KTP" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster focus:outline-none focus:border-champagne" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-charcoalTeal mb-1">Nomor WhatsApp Aktif *</label>
+              <input type="text" id="book-hp-tamu" required placeholder="08123456789" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster focus:outline-none focus:border-champagne" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-charcoalTeal mb-1">Tanggal Check-In *</label>
+              <input type="date" id="book-tgl-checkin" required onchange="window.app.recalculateBookingTotal()" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster focus:outline-none focus:border-champagne" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-charcoalTeal mb-1">Tanggal Check-Out *</label>
+              <input type="date" id="book-tgl-checkout" required onchange="window.app.recalculateBookingTotal()" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster focus:outline-none focus:border-champagne" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-charcoalTeal mb-1">Catatan Tambahan (Opsional)</label>
+            <input type="text" id="book-catatan" placeholder="Contoh: Check-in sore pukul 17.00, minta kamar lantai 1" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster focus:outline-none focus:border-champagne" />
+          </div>
+
+          <!-- Summary Calculation Box -->
+          <div class="p-4 rounded-xl bg-emeraldNight text-white flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider text-stone-300 block">Estimasi Total (<span id="book-total-malam-text">1</span> Malam)</span>
+              <span id="book-total-harga-text" class="font-serif text-xl font-bold text-champagne">Rp 0</span>
+            </div>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider transition shadow-lg">
+              Konfirmasi & Buat Invoice
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 3: UPLOAD BUKTI PEMBAYARAN (DUAL INPUT: FILE UPLOAD + URL) -->
+    <div id="payment-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/75 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 border border-sandBorder shadow-2xl space-y-4 my-auto">
+        <div class="flex items-center justify-between border-b border-sandBorder pb-3">
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-champagne font-semibold">PAYMENT CONFIRMATION</span>
+            <h3 class="font-serif text-xl text-charcoalTeal">Unggah Bukti Pembayaran</h3>
+          </div>
+          <button onclick="window.app.closeModal('payment-modal-backdrop')" class="p-1 text-warmSlate">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <form onsubmit="window.app.submitBuktiBayar(event)" class="space-y-4 text-xs sm:text-sm">
+          <input type="hidden" id="pay-reservasi-id" />
+          <div class="p-3 rounded-xl bg-alabaster border border-sandBorder text-xs space-y-1">
+            <p class="font-semibold text-charcoalTeal">Silakan transfer sesuai nominal tagihan ke:</p>
+            <p id="pay-rekening-display" class="text-emeraldNight font-bold">-</p>
+          </div>
+
+          <!-- Dual Input Photo Uploader for Payment Proof -->
+          <div class="space-y-3">
+            <label class="block text-xs font-bold uppercase tracking-wider text-charcoalTeal">Pilih Foto Struk / Bukti Transfer (Upload / URL)</label>
+            <img id="preview-bukti-bayar" src="https://placehold.co/600x360/FBF9F5/64706D?text=Pratinjau+Bukti+Bayar" alt="Preview Bukti" class="w-full h-44 rounded-xl object-contain border border-sandBorder bg-alabaster" />
+
+            <label class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emeraldNight text-white text-xs font-semibold cursor-pointer hover:bg-emeraldDeep transition">
+              <i data-lucide="upload" class="w-4 h-4 text-champagne"></i>
+              <span>Pilih Foto dari HP / Laptop</span>
+              <input type="file" accept="image/*" class="hidden" onchange="window.app.handleImageUpload(event, 'pay-bukti-url', 'preview-bukti-bayar')" />
+            </label>
+
+            <input type="text" id="pay-bukti-url" oninput="document.getElementById('preview-bukti-bayar').src = this.value || 'https://placehold.co/600x360/FBF9F5/64706D?text=Pratinjau+Bukti+Bayar'" placeholder="Atau tempel link URL foto bukti transfer..." class="w-full px-3.5 py-2 rounded-xl border border-sandBorder bg-alabaster text-xs focus:outline-none focus:border-champagne" />
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider transition shadow-md">
+            Kirim Bukti Pembayaran
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 4: ADMIN — TAMBAH/EDIT KAMAR (DUAL INPUT FOTO) -->
+    <div id="kamar-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/75 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 border border-sandBorder shadow-2xl space-y-4 my-auto">
+        <div class="flex items-center justify-between border-b border-sandBorder pb-3">
+          <h3 id="kamar-modal-title" class="font-serif text-2xl text-charcoalTeal">Tambah Kamar Baru</h3>
+          <button onclick="window.app.closeModal('kamar-modal-backdrop')" class="p-1 text-warmSlate"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <form onsubmit="window.app.saveKamar(event)" class="space-y-3.5 text-xs sm:text-sm">
+          <input type="hidden" id="form-kamar-id" />
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Kode Kamar *</label>
+              <input type="text" id="form-kamar-kode" required placeholder="KMR-101" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Tipe Kamar *</label>
+              <select id="form-kamar-tipe" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster">
+                <option value="Standard">Standard</option>
+                <option value="Deluxe">Deluxe</option>
+                <option value="Family Suite">Family Suite</option>
+                <option value="VIP">VIP</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1">Nama Kamar / Unit *</label>
+            <input type="text" id="form-kamar-nama" required placeholder="Contoh: Deluxe Emerald Suite" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Harga / Malam (Rp) *</label>
+              <input type="number" id="form-kamar-harga" required min="50000" step="5000" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Kapasitas (Orang) *</label>
+              <input type="number" id="form-kamar-kapasitas" required min="1" max="10" value="2" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Status *</label>
+              <select id="form-kamar-status" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster">
+                <option value="Tersedia">Tersedia</option>
+                <option value="Terisi">Terisi</option>
+                <option value="Perbaikan">Perbaikan</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1">Fasilitas Kamar *</label>
+            <input type="text" id="form-kamar-fasilitas" required placeholder="King Bed • AC • Smart TV • Water Heater • WiFi" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+
+          <!-- Dual-Input Photo Uploader for Room -->
+          <div class="p-3.5 rounded-xl bg-alabaster border border-sandBorder space-y-2.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-charcoalTeal">Foto Kamar (Upload File dari Perangkat / URL)</label>
+            <div class="flex items-center gap-3">
+              <img id="preview-form-kamar" src="https://placehold.co/300x200/0F262A/C5A367?text=Foto+Kamar" alt="Preview" class="w-24 h-16 rounded-lg object-cover border border-champagne shrink-0" />
+              <div class="flex-1 space-y-1.5">
+                <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emeraldNight text-white text-xs font-semibold cursor-pointer hover:bg-emeraldDeep transition">
+                  <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-champagne"></i>
+                  <span>Upload Foto Kamar</span>
+                  <input type="file" accept="image/*" class="hidden" onchange="window.app.handleImageUpload(event, 'form-kamar-foto', 'preview-form-kamar')" />
+                </label>
+                <input type="text" id="form-kamar-foto" oninput="document.getElementById('preview-form-kamar').src = this.value || 'https://placehold.co/300x200/0F262A/C5A367?text=Foto+Kamar'" placeholder="Atau tempel URL foto kamar..." class="w-full px-2.5 py-1.5 rounded-lg border border-sandBorder bg-white text-xs" />
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal('kamar-modal-backdrop')" class="px-4 py-2 rounded-xl border border-sandBorder text-xs font-semibold">Batal</button>
+            <button type="submit" class="px-6 py-2 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider">Simpan Kamar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 5: ADMIN — TAMBAH/EDIT ARTIKEL & PROMO (DUAL INPUT FOTO) -->
+    <div id="artikel-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/75 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 border border-sandBorder shadow-2xl space-y-4 my-auto">
+        <div class="flex items-center justify-between border-b border-sandBorder pb-3">
+          <h3 id="artikel-modal-title" class="font-serif text-2xl text-charcoalTeal">Tulis Artikel / Promo</h3>
+          <button onclick="window.app.closeModal('artikel-modal-backdrop')" class="p-1 text-warmSlate"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <form onsubmit="window.app.saveArtikel(event)" class="space-y-3.5 text-xs sm:text-sm">
+          <input type="hidden" id="form-artikel-id" />
+          <div>
+            <label class="block text-xs font-semibold mb-1">Judul Artikel / Promo *</label>
+            <input type="text" id="form-artikel-judul" required class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Kategori *</label>
+              <select id="form-artikel-kategori" class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster">
+                <option value="Promo">Promo</option>
+                <option value="Wisata">Wisata</option>
+                <option value="Berita">Berita</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Tanggal Publikasi *</label>
+              <input type="date" id="form-artikel-tanggal" required class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Isi Konten / Deskripsi Lengkap *</label>
+            <textarea id="form-artikel-isi" rows="4" required class="w-full px-3 py-2 rounded-xl border border-sandBorder bg-alabaster"></textarea>
+          </div>
+
+          <!-- Dual-Input Photo Uploader for Article -->
+          <div class="p-3.5 rounded-xl bg-alabaster border border-sandBorder space-y-2.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-charcoalTeal">Gambar Sampul Artikel (Upload File / URL)</label>
+            <div class="flex items-center gap-3">
+              <img id="preview-form-artikel" src="https://placehold.co/300x200/0F262A/C5A367?text=Artikel" alt="Preview" class="w-24 h-16 rounded-lg object-cover border border-champagne shrink-0" />
+              <div class="flex-1 space-y-1.5">
+                <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emeraldNight text-white text-xs font-semibold cursor-pointer hover:bg-emeraldDeep transition">
+                  <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-champagne"></i>
+                  <span>Upload Gambar</span>
+                  <input type="file" accept="image/*" class="hidden" onchange="window.app.handleImageUpload(event, 'form-artikel-gambar', 'preview-form-artikel')" />
+                </label>
+                <input type="text" id="form-artikel-gambar" oninput="document.getElementById('preview-form-artikel').src = this.value || 'https://placehold.co/300x200/0F262A/C5A367?text=Artikel'" placeholder="Atau tempel URL gambar..." class="w-full px-2.5 py-1.5 rounded-lg border border-sandBorder bg-white text-xs" />
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal('artikel-modal-backdrop')" class="px-4 py-2 rounded-xl border border-sandBorder text-xs font-semibold">Batal</button>
+            <button type="submit" class="px-6 py-2 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider">Publikasikan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 6: ADMIN — TAMBAH/EDIT AKUN TAMU -->
+    <div id="tamu-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/75 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 border border-sandBorder shadow-2xl space-y-4 my-auto">
+        <div class="flex items-center justify-between border-b border-sandBorder pb-3">
+          <h3 id="tamu-modal-title" class="font-serif text-2xl text-charcoalTeal">Tambah Akun Tamu</h3>
+          <button onclick="window.app.closeModal('tamu-modal-backdrop')" class="p-1 text-warmSlate"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form onsubmit="window.app.saveTamu(event)" class="space-y-3.5 text-xs sm:text-sm">
+          <input type="hidden" id="form-tamu-id" />
+          <div>
+            <label class="block text-xs font-semibold mb-1">Nama Lengkap *</label>
+            <input type="text" id="form-tamu-nama" required class="w-full px-3.5 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Username Login *</label>
+            <input type="text" id="form-tamu-username" required class="w-full px-3.5 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">No. HP / WhatsApp *</label>
+            <input type="text" id="form-tamu-hp" required class="w-full px-3.5 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Password *</label>
+            <input type="text" id="form-tamu-password" required class="w-full px-3.5 py-2 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal('tamu-modal-backdrop')" class="px-4 py-2 rounded-xl border border-sandBorder text-xs font-semibold">Batal</button>
+            <button type="submit" class="px-6 py-2 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider">Simpan Akun</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 7: HYBRID LOGIN MODAL (ADMIN SUPABASE AUTH & TAMU DB TABLE) -->
+    <div id="auth-modal-backdrop" class="hidden fixed inset-0 z-50 bg-emeraldNight/80 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 border border-sandBorder shadow-2xl space-y-5 my-auto">
+        <div class="flex items-center justify-between border-b border-sandBorder pb-4">
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-champagne font-semibold">PORTAL AKSES TIPALAYO</span>
+            <h3 class="font-serif text-2xl text-charcoalTeal">Masuk ke Akun Anda</h3>
+          </div>
+          <button onclick="window.app.closeModal('auth-modal-backdrop')" class="p-1 text-warmSlate"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- Role Switcher Tabs -->
+        <div class="grid grid-cols-2 p-1 rounded-xl bg-alabaster border border-sandBorder text-xs font-semibold">
+          <button type="button" id="tab-login-tamu" onclick="window.app.switchAuthTab('tamu')" class="py-2 rounded-lg bg-emeraldNight text-white transition">
+            Tamu / Member
+          </button>
+          <button type="button" id="tab-login-admin" onclick="window.app.switchAuthTab('admin')" class="py-2 rounded-lg text-warmSlate hover:text-charcoalTeal transition">
+            Admin CMS
+          </button>
+        </div>
+
+        <!-- Form Login Tamu (Validasi Tabel `tamu`) -->
+        <form id="form-login-tamu" onsubmit="window.app.handleTamuLogin(event)" class="space-y-4 text-xs sm:text-sm">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Username Tamu</label>
+            <input type="text" id="login-tamu-user" required placeholder="Contoh: budi_tamu" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Password</label>
+            <input type="password" id="login-tamu-pass" required placeholder="••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <button type="submit" class="w-full py-3 rounded-full bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider transition shadow-md">
+            Masuk Sebagai Tamu
+          </button>
+        </form>
+
+        <!-- Form Login Admin (Supabase Auth Email & Password) -->
+        <form id="form-login-admin" onsubmit="window.app.handleAdminLogin(event)" class="hidden space-y-4 text-xs sm:text-sm">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Email Admin (Supabase Auth)</label>
+            <input type="email" id="login-admin-email" required placeholder="admin@tipalayo.com" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Password Admin</label>
+            <input type="password" id="login-admin-pass" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-sandBorder bg-alabaster" />
+          </div>
+          <button type="submit" class="w-full py-3 rounded-full bg-emeraldNight hover:bg-emeraldDeep text-white text-xs font-bold uppercase tracking-wider transition shadow-md">
+            Masuk ke Dashboard Admin
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- CUSTOM TOAST NOTIFICATION -->
+    <div id="toast-container" class="no-print fixed top-14 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  </div>
+
+  <!-- =================================================================
+       JAVASCRIPT APPLICATION ENGINE (SUPABASE + PREVIEW STATE)
+       ================================================================= -->
+  <script type="module">
+    // KONFIGURASI APLIKASI
+    const IS_PREVIEW = false; // Ubah menjadi false SAAT DEPLOY agar mode preview & data dummy hilang dan terhubung 100% ke Supabase
+    const SUPABASE_URL = "https://walyzdsqtlughpqnxljr.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhbHl6ZHNxdGx1Z2hwcW54bGpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNDcyNzcsImV4cCI6MjEwODYyMzI3N30.UQ9q2PM07HkGo2PBiugvYNZI1sF2gj_xmhM2Z2cr_So";
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    // Inisialisasi klien Supabase hanya saat mode produksi (IS_PREVIEW === false)
+    const supabase = (!IS_PREVIEW && SUPABASE_URL !== "URL_SUPABASE_ANDA")
+      ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
+    // State Memori Aplikasi
+    const state = {
+      currentView: 'beranda',
+      role: 'public', // 'public' | 'tamu' | 'admin'
+      currentUser: null,
+      profil: {
+        id: 1,
+        judul_hero: "Lebih Dari Sekadar Menginap, Ini Adalah Kenyamanan",
+        subjudul_hero: "Temukan perpaduan sempurna antara ketenangan, keramahan hangat khas Nusantara, dan fasilitas modern terbaik di Penginapan TIPALAYO.",
+        tentang_kami: "Penginapan TIPALAYO menghadirkan suasana istirahat eksklusif dengan standar kebersihan tinggi, pelayanan resepsionis 24 jam, dan lokasi strategis untuk menunjang perjalanan wisata maupun bisnis Anda.",
+        alamat: "Jl. Poros Utama Tipalayo, Kawasan Strategis, Sulawesi",
+        telepon_wa: "6281234567890",
+        banner_url: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
+        logo_url: "https://placehold.co/120x120/0F262A/C5A367?text=TPL",
+        info_rekening: "BRI 4567-01-023456-53-1 / Mandiri 152-00-9876543-2 a.n Penginapan TIPALAYO"
+      },
+      kamar: [],
+      tamu: [],
+      reservasi: [],
+      artikel: []
+    };
+
+    // Data Dummy Minimalis (1-2 baris per tabel, HANYA dimuat saat IS_PREVIEW === true)
+    function initPreviewDummyData() {
+      state.kamar = [
+        {
+          id: 101,
+          kode_kamar: "TPL-DLX01",
+          nama_kamar: "Deluxe Emerald Room",
+          tipe: "Deluxe",
+          harga_malam: 350000,
+          kapasitas: 2,
+          fasilitas: "King Bed • 2 Tamu • AC Dingin • Smart TV • Water Heater",
+          foto_url: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80",
+          status: "Tersedia"
+        },
+        {
+          id: 102,
+          kode_kamar: "TPL-FAM02",
+          nama_kamar: "Royal Family Sanctuary Suite",
+          tipe: "Family Suite",
+          harga_malam: 550000,
+          kapasitas: 4,
+          fasilitas: "Twin King Bed • 4 Tamu • Balkon Pribadi • Sarapan & Kopi",
+          foto_url: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80",
+          status: "Tersedia"
+        }
+      ];
+
+      state.tamu = [
+        {
+          id: 201,
+          username: "budi_tamu",
+          password: "123",
+          nama_lengkap: "Budi Santoso",
+          no_hp: "081298765432"
+        }
+      ];
+
+      state.reservasi = [
+        {
+          id: 301,
+          kode_booking: "TPL-9042",
+          no_invoice: "INV/TPL/2026/001",
+          tamu_id: 201,
+          nama_tamu: "Budi Santoso",
+          no_hp_tamu: "081298765432",
+          kamar_id: 101,
+          nama_kamar: "Deluxe Emerald Room",
+          harga_malam: 350000,
+          tgl_checkin: "2026-11-02",
+          tgl_checkout: "2026-11-04",
+          total_malam: 2,
+          total_harga: 700000,
+          status_booking: "Disetujui",
+          status_bayar: "Lunas",
+          bukti_bayar_url: "https://placehold.co/600x400/0F262A/C5A367?text=Bukti+Transfer+Lunas",
+          catatan: "Check-in pukul 14:30 WITA, mohon disiapkan handuk ekstra.",
+          created_at: "2026-11-01"
+        }
+      ];
+
+      state.artikel = [
+        {
+          id: 401,
+          judul: "Promo Spesial Akhir Pekan: Menginap Lebih Hemat & Nyaman di TIPALAYO",
+          kategori: "Promo",
+          isi_konten: "Nikmati penawaran tarif spesial akhir pekan untuk tipe kamar Deluxe dan Family Suite lengkap dengan sajian kopi pagi hangat.",
+          gambar_url: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80",
+          tanggal_publikasi: "2026-11-01"
+        },
+        {
+          id: 402,
+          judul: "Eksplorasi Keindahan Alam & Kuliner Tradisional Sekitar Tipalayo",
+          kategori: "Wisata",
+          isi_konten: "Rehat sejenak dari rutinitas dan cicipi ragam hidangan khas pesisir serta panorama senja yang dapat ditempuh beberapa menit dari penginapan.",
+          gambar_url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+          tanggal_publikasi: "2026-10-28"
+        }
+      ];
+    }
+
+    // Format Rupiah Helper
+    function formatRupiah(angka) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(Number(angka) || 0);
+    }
+
+    // Toast Notification Helper (Anti-alert)
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgClass = type === 'error'
+        ? 'bg-red-900 border-red-500 text-white'
+        : 'bg-emeraldNight border-champagne text-white';
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs font-semibold transition-all duration-300 ${bgClass}`;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${type === 'error' ? 'bg-red-400' : 'bg-champagne'}"></span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    // Dual-Input Image Uploader & Client-Side Compressor (Berfungsi di semua form pengaturan)
+    async function handleImageUpload(event, targetInputId, previewImgId) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        showToast("Memproses & mengoptimalkan ukuran foto...");
+        const compressedDataUrl = await compressImageFile(file, 950, 0.78);
+
+        // Jika produksi & Supabase Storage tersedia, coba unggah ke bucket `media_tipalayo`, jika gagal fallback ke Data URL
+        let finalImageUrl = compressedDataUrl;
+        if (!IS_PREVIEW && supabase) {
+          try {
+            const fileName = `img_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+            const { data, error } = await supabase.storage.from('media_tipalayo').upload(fileName, file, { upsert: true });
+            if (!error && data) {
+              const { data: pubUrl } = supabase.storage.from('media_tipalayo').getPublicUrl(fileName);
+              if (pubUrl?.publicUrl) finalImageUrl = pubUrl.publicUrl;
+            }
+          } catch (_) {
+            // Fallback otomatis ke Data URL terkompresi agar tidak pernah error
+          }
+        }
+
+        const inputEl = document.getElementById(targetInputId);
+        const previewEl = document.getElementById(previewImgId);
+        if (inputEl) inputEl.value = finalImageUrl;
+        if (previewEl) previewEl.src = finalImageUrl;
+
+        showToast("Foto berhasil diunggah dan siap disimpan!");
+      } catch (err) {
+        showToast("Gagal memproses file gambar.", "error");
+      }
+    }
+
+    function compressImageFile(file, maxWidth = 950, quality = 0.78) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Load Data dari Supabase (Saat IS_PREVIEW = false)
+    async function fetchAllSupabaseData() {
+      if (IS_PREVIEW || !supabase) return;
+      try {
+        const [profilRes, kamarRes, tamuRes, reservasiRes, artikelRes] = await Promise.all([
+          supabase.from('cms_profil').select('*').limit(1).maybeSingle(),
+          supabase.from('kamar').select('*').order('id', { ascending: true }),
+          supabase.from('tamu').select('*').order('id', { ascending: false }),
+          supabase.from('reservasi').select('*').order('id', { ascending: false }),
+          supabase.from('cms_artikel').select('*').order('id', { ascending: false })
+        ]);
+
+        if (profilRes.data) state.profil = profilRes.data;
+        state.kamar = kamarRes.data || [];
+        state.tamu = tamuRes.data || [];
+        state.reservasi = reservasiRes.data || [];
+        state.artikel = artikelRes.data || [];
+      } catch (err) {
+        showToast("Gagal memuat data dari database Supabase.", "error");
+      }
+    }
+
+    // Render Profil & Floating WA
+    function renderProfilAndCMS() {
+      const p = state.profil;
+      document.getElementById('hero-title-text').innerHTML = p.judul_hero;
+      document.getElementById('hero-subtitle-text').textContent = p.subjudul_hero;
+      document.getElementById('about-us-summary').textContent = p.tentang_kami;
+      document.getElementById('hero-banner-img').src = p.banner_url;
+      document.getElementById('sidebar-logo-img').src = p.logo_url;
+      document.getElementById('mobile-logo-img').src = p.logo_url;
+      document.getElementById('sidebar-phone-display').textContent = `+${p.telepon_wa}`;
+      document.getElementById('footer-about-text').textContent = p.tentang_kami;
+      document.getElementById('footer-address-text').textContent = p.alamat;
+      document.getElementById('footer-phone-text').textContent = `WhatsApp: +${p.telepon_wa}`;
+      document.getElementById('footer-bank-text').textContent = `Pembayaran Resmi: ${p.info_rekening}`;
+
+      // Update Floating WhatsApp Link
+      const cleanWa = (p.telepon_wa || "6281234567890").replace(/[^0-9]/g, '');
+      const waMessage = encodeURIComponent("Halo Resepsionis Penginapan TIPALAYO, saya ingin bertanya mengenai informasi dan ketersediaan kamar.");
+      document.getElementById('floating-wa-btn').href = `https://wa.me/${cleanWa}?text=${waMessage}`;
+
+      // Populate CMS Form Inputs
+      document.getElementById('cms-judul-hero').value = p.judul_hero || '';
+      document.getElementById('cms-subjudul-hero').value = p.subjudul_hero || '';
+      document.getElementById('cms-tentang-kami').value = p.tentang_kami || '';
+      document.getElementById('cms-alamat').value = p.alamat || '';
+      document.getElementById('cms-telepon-wa').value = p.telepon_wa || '';
+      document.getElementById('cms-info-rekening').value = p.info_rekening || '';
+      document.getElementById('cms-logo-url').value = p.logo_url || '';
+      document.getElementById('preview-cms-logo').src = p.logo_url || 'https://placehold.co/120x120/0F262A/C5A367?text=TPL';
+      document.getElementById('cms-banner-url').value = p.banner_url || '';
+      document.getElementById('preview-cms-banner').src = p.banner_url || '';
+    }
+
+    // Render Kartu Kamar (Royal Haven Style)
+    function createRoyalHavenRoomCard(room) {
+      const isAvailable = room.status === 'Tersedia';
+      const statusBadge = isAvailable
+        ? `<span class="px-2.5 py-1 rounded-full bg-emeraldNight/90 text-champagne text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">Tersedia</span>`
+        : `<span class="px-2.5 py-1 rounded-full bg-red-900/90 text-white text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm">${room.status}</span>`;
+
+      return `
+        <div class="group bg-white rounded-2xl border border-sandBorder shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col">
+          <div class="relative h-52 overflow-hidden bg-emeraldNight">
+            <img src="${room.foto_url}" alt="${room.nama_kamar}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/0F262A/C5A367?text=Kamar+TIPALAYO'" />
+            <div class="absolute top-3 left-3 flex items-center gap-1.5">
+              <span class="px-2.5 py-1 rounded-full bg-white/90 text-charcoalTeal text-[10px] font-bold uppercase tracking-wider">${room.tipe}</span>
+            </div>
+            <div class="absolute top-3 right-3">${statusBadge}</div>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-[11px] text-warmSlate font-medium mb-1">
+                <span>Kode: ${room.kode_kamar}</span>
+                <span>Maks. ${room.kapasitas} Tamu</span>
+              </div>
+              <h4 class="font-serif text-xl font-semibold text-charcoalTeal">${room.nama_kamar}</h4>
+              <p class="text-xs text-warmSlate mt-1.5 line-clamp-2">${room.fasilitas}</p>
+            </div>
+            <div class="pt-3 border-t border-sandBorder flex items-center justify-between">
+              <div>
+                <span class="font-serif text-lg font-bold text-charcoalTeal">${formatRupiah(room.harga_malam)}</span>
+                <span class="text-xs text-warmSlate"> / malam</span>
+              </div>
+              ${isAvailable ? `
+                <button onclick="window.app.openBookingModal('${room.id}')" title="Pesan Kamar Ini" class="w-10 h-10 rounded-full bg-champagne hover:bg-bronzeHover text-white flex items-center justify-center shadow-md transition">
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              ` : `
+                <button disabled class="px-3 py-1.5 rounded-full bg-stone-200 text-stone-500 text-xs font-semibold cursor-not-allowed">
+                  Penuh
+                </button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLandingAndKatalog() {
+      // Landing Rooms (Top 2)
+      const landingGrid = document.getElementById('landing-rooms-grid');
+      if (state.kamar.length === 0) {
+        landingGrid.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-white border border-sandBorder text-center text-sm text-warmSlate">Belum ada data kamar.</div>`;
+      } else {
+        landingGrid.innerHTML = state.kamar.slice(0, 2).map(createRoyalHavenRoomCard).join('');
+      }
+
+      // Full Katalog Rooms
+      renderKatalogKamar();
+
+      // Landing Articles
+      const landingArt = document.getElementById('landing-articles-grid');
+      if (state.artikel.length === 0) {
+        landingArt.innerHTML = `<div class="col-span-full p-8 rounded-2xl bg-white border border-sandBorder text-center text-sm text-warmSlate">Belum ada artikel atau promo.</div>`;
+      } else {
+        landingArt.innerHTML = state.artikel.slice(0, 2).map(art => `
+          <div class="bg-white rounded-2xl border border-sandBorder overflow-hidden shadow-sm hover:shadow-lg transition grid grid-cols-1 sm:grid-cols-12">
+            <div class="sm:col-span-5 h-48 sm:h-auto bg-emeraldNight">
+              <img src="${art.gambar_url}" alt="${art.judul}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/0F262A/C5A367?text=TIPALAYO'" />
+            </div>
+            <div class="sm:col-span-7 p-5 flex flex-col justify-between space-y-3">
+              <div>
+                <span class="text-[10px] uppercase tracking-widest text-champagne font-bold">${art.kategori} • ${art.tanggal_publikasi}</span>
+                <h4 class="font-serif text-lg font-semibold text-charcoalTeal mt-1">${art.judul}</h4>
+                <p class="text-xs text-warmSlate mt-1.5 line-clamp-3 leading-relaxed">${art.isi_konten}</p>
+              </div>
+              <button onclick="window.app.navigate('artikel')" class="self-start text-xs font-semibold text-emeraldNight hover:text-champagne inline-flex items-center gap-1">
+                <span>Baca Selengkapnya</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      renderArtikelPublik();
+      lucide.createIcons();
+    }
+
+    function renderKatalogKamar() {
+      const tipeFilter = document.getElementById('filter-kamar-tipe')?.value || 'ALL';
+      const statusFilter = document.getElementById('filter-kamar-status')?.value || 'ALL';
+      const filtered = state.kamar.filter(k => {
+        const matchTipe = tipeFilter === 'ALL' || k.tipe === tipeFilter;
+        const matchStatus = statusFilter === 'ALL' || k.status === statusFilter;
+        return matchTipe && matchStatus;
+      });
+
+      const container = document.getElementById('katalog-rooms-container');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-10 rounded-2xl bg-white border border-sandBorder text-center text-sm text-warmSlate">Belum ada data kamar yang sesuai filter.</div>`;
+      } else {
+        container.innerHTML = filtered.map(createRoyalHavenRoomCard).join('');
+      }
+      lucide.createIcons();
+    }
+
+    function renderArtikelPublik() {
+      const kat = document.getElementById('filter-artikel-kategori')?.value || 'ALL';
+      const list = state.artikel.filter(a => kat === 'ALL' || a.kategori === kat);
+      const grid = document.getElementById('publik-artikel-grid');
+      if (list.length === 0) {
+        grid.innerHTML = `<div class="col-span-full p-10 rounded-2xl bg-white border border-sandBorder text-center text-sm text-warmSlate">Belum ada artikel pada kategori ini.</div>`;
+      } else {
+        grid.innerHTML = list.map(art => `
+          <article class="bg-white rounded-2xl border border-sandBorder overflow-hidden shadow-sm flex flex-col">
+            <img src="${art.gambar_url}" alt="${art.judul}" class="h-48 w-full object-cover" onerror="this.src='https://placehold.co/600x400/0F262A/C5A367?text=Info+TIPALAYO'" />
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+              <div>
+                <span class="px-2.5 py-0.5 rounded-full bg-champagne/15 text-bronzeHover text-[10px] font-bold uppercase tracking-wider">${art.kategori}</span>
+                <h3 class="font-serif text-xl font-semibold text-charcoalTeal mt-2">${art.judul}</h3>
+                <p class="text-xs text-warmSlate mt-2 leading-relaxed">${art.isi_konten}</p>
+              </div>
+              <p class="text-[11px] text-warmSlate pt-3 border-t border-sandBorder">Dipublikasikan: ${art.tanggal_publikasi}</p>
+            </div>
+          </article>
+        `).join('');
+      }
+    }
+
+    // Render Pesanan Saya & E-Invoice List
+    function renderPesananSaya() {
+      const container = document.getElementById('guest-reservasi-list');
+      let list = state.reservasi;
+      if (state.role === 'tamu' && state.currentUser) {
+        list = state.reservasi.filter(r => String(r.tamu_id) === String(state.currentUser.id) || r.nama_tamu === state.currentUser.nama_lengkap);
+      }
+
+      document.getElementById('badge-pesanan-count').textContent = list.length;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-sandBorder p-10 text-center space-y-3">
+            <p class="font-serif text-xl text-charcoalTeal">Belum Ada Riwayat Reservasi</p>
+            <p class="text-xs text-warmSlate">Silakan pilih kamar di menu Katalog Kamar untuk membuat reservasi baru dan mendapatkan E-Invoice resmi.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(r => {
+        const isPaid = r.status_bayar === 'Lunas';
+        const payBadge = isPaid
+          ? `<span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">LUNAS</span>`
+          : `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">${r.status_bayar}</span>`;
+
+        return `
+          <div class="bg-white rounded-2xl border border-sandBorder p-5 sm:p-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div class="space-y-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-lg bg-emeraldNight text-champagne font-mono text-xs font-bold">${r.no_invoice}</span>
+                <span class="text-xs text-warmSlate font-mono">Booking: #${r.kode_booking}</span>
+                ${payBadge}
+                <span class="px-2.5 py-1 rounded-full bg-alabaster border border-sandBorder text-xs font-semibold">${r.status_booking}</span>
+              </div>
+              <h3 class="font-serif text-xl font-bold text-charcoalTeal">${r.nama_kamar}</h3>
+              <p class="text-xs text-warmSlate">
+                Tamu: <strong>${r.nama_tamu}</strong> (${r.no_hp_tamu}) • Check-In: <strong>${r.tgl_checkin}</strong> s/d <strong>${r.tgl_checkout}</strong> (${r.total_malam} Malam)
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-sandBorder">
+              <div class="mr-2">
+                <span class="text-[10px] uppercase tracking-wider text-warmSlate block">Total Tagihan</span>
+                <span class="font-serif text-xl font-bold text-emeraldNight">${formatRupiah(r.total_harga)}</span>
+              </div>
+              <button onclick="window.app.openPaymentModal('${r.id}')" class="px-4 py-2.5 rounded-xl border border-charcoalTeal/30 hover:border-champagne text-xs font-semibold transition flex items-center gap-1.5">
+                <i data-lucide="upload" class="w-3.5 h-3.5 text-champagne"></i>
+                <span>Upload Bukti Bayar</span>
+              </button>
+              <button onclick="window.app.openInvoiceModal('${r.id}')" class="px-5 py-2.5 rounded-xl bg-champagne hover:bg-bronzeHover text-white text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>Lihat & Cetak Invoice</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // Generate Clean SVG QR Code for E-Invoice Validation
+    function generateSvgQRCode(text) {
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+      }
+      const size = 9;
+      let cells = '';
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const isCorner = (r < 2 && c < 2) || (r < 2 && c >= size - 2) || (r >= size - 2 && c < 2);
+          const bit = Math.abs((hash >> ((r * size + c) % 28)) & 1);
+          if (isCorner || bit === 1) {
+            cells += `<rect x="${c * 10 + 5}" y="${r * 10 + 5}" width="8" height="8" rx="1.5" fill="#0F262A"/>`;
+          }
+        }
+      }
+      return `<svg width="96" height="96" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="rounded-lg"><rect width="100" height="100" fill="#FBF9F5"/>${cells}</svg>`;
+    }
+
+    // Open Luxury E-Invoice Modal
+    function openInvoiceModal(reservasiId) {
+      const r = state.reservasi.find(item => String(item.id) === String(reservasiId));
+      if (!r) return;
+
+      document.getElementById('inv-logo').src = state.profil.logo_url;
+      document.getElementById('inv-hotel-address').textContent = `${state.profil.alamat} • WA: +${state.profil.telepon_wa}`;
+      document.getElementById('inv-number').textContent = r.no_invoice;
+      document.getElementById('inv-booking-code').textContent = r.kode_booking;
+      document.getElementById('inv-guest-name').textContent = r.nama_tamu;
+      document.getElementById('inv-guest-phone').textContent = `Telp/WA: ${r.no_hp_tamu}`;
+      document.getElementById('inv-checkin').textContent = r.tgl_checkin;
+      document.getElementById('inv-checkout').textContent = r.tgl_checkout;
+      document.getElementById('inv-booking-status').textContent = r.status_booking;
+      document.getElementById('inv-created-date').textContent = `Diterbitkan: ${r.created_at || '2026-11-01'}`;
+      document.getElementById('inv-room-name').textContent = r.nama_kamar;
+      document.getElementById('inv-notes').textContent = `Catatan: ${r.catatan || 'Tidak ada catatan khusus'}`;
+      document.getElementById('inv-nights').textContent = `${r.total_malam} Malam`;
+      document.getElementById('inv-rate').textContent = formatRupiah(r.harga_malam);
+      document.getElementById('inv-subtotal').textContent = formatRupiah(r.total_harga);
+      document.getElementById('inv-grand-total').textContent = formatRupiah(r.total_harga);
+      document.getElementById('inv-bank-info').textContent = `Rekening Resmi: ${state.profil.info_rekening}`;
+
+      const badge = document.getElementById('inv-stamp-badge');
+      if (r.status_bayar === 'Lunas') {
+        badge.textContent = 'LUNAS / PAID';
+        badge.className = 'inline-block px-4 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-400';
+      } else {
+        badge.textContent = r.status_bayar.toUpperCase();
+        badge.className = 'inline-block px-4 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-champagne/20 text-champagne border border-champagne';
+      }
+
+      document.getElementById('inv-qr-box').innerHTML = generateSvgQRCode(`${r.no_invoice}|${r.kode_booking}|${r.total_harga}`);
+      document.getElementById('invoice-modal-backdrop').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    // Render Semua Tabel Admin (Dashboard, Kamar, Reservasi, Artikel, Tamu)
+    function renderAdminViews() {
+      // KPI Stats
+      document.getElementById('stat-total-kamar').textContent = state.kamar.length;
+      document.getElementById('stat-kamar-tersedia').textContent = state.kamar.filter(k => k.status === 'Tersedia').length;
+      document.getElementById('stat-total-reservasi').textContent = state.reservasi.length;
+      const totalLunas = state.reservasi
+        .filter(r => r.status_bayar === 'Lunas')
+        .reduce((acc, cur) => acc + Number(cur.total_harga || 0), 0);
+      document.getElementById('stat-total-pendapatan').textContent = formatRupiah(totalLunas);
+
+      // Recent Reservations Table on Dashboard
+      const recentTbody = document.getElementById('dashboard-recent-table');
+      if (state.reservasi.length === 0) {
+        recentTbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-warmSlate">Belum ada data reservasi.</td></tr>`;
+      } else {
+        recentTbody.innerHTML = state.reservasi.slice(0, 5).map(r => `
+          <tr class="hover:bg-alabaster/60">
+            <td class="py-3.5 px-4 font-mono text-xs font-bold">${r.no_invoice}<br/><span class="text-warmSlate font-normal">#${r.kode_booking}</span></td>
+            <td class="py-3.5 px-4 font-semibold">${r.nama_tamu}<br/><span class="text-xs text-warmSlate font-normal">${r.no_hp_tamu}</span></td>
+            <td class="py-3.5 px-4">${r.nama_kamar}<br/><span class="text-xs text-warmSlate">${r.tgl_checkin} → ${r.tgl_checkout}</span></td>
+            <td class="py-3.5 px-4 font-bold">${formatRupiah(r.total_harga)}</td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-alabaster border border-sandBorder text-xs font-semibold">${r.status_booking} • ${r.status_bayar}</span></td>
+            <td class="py-3.5 px-4 text-right">
+              <button onclick="window.app.openInvoiceModal('${r.id}')" class="px-3 py-1.5 rounded-lg bg-emeraldNight text-champagne text-xs font-semibold">Invoice</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Admin Kamar Table
+      const kamarTbody = document.getElementById('admin-kamar-tbody');
+      if (state.kamar.length === 0) {
+        kamarTbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-warmSlate">Belum ada data kamar.</td></tr>`;
+      } else {
+        kamarTbody.innerHTML = state.kamar.map(k => `
+          <tr class="hover:bg-alabaster/60">
+            <td class="py-3.5 px-4 flex items-center gap-3">
+              <img src="${k.foto_url}" class="w-14 h-10 rounded-lg object-cover border border-sandBorder shrink-0" onerror="this.src='https://placehold.co/100x80/0F262A/C5A367?text=Kamar'" />
+              <span class="font-serif font-bold text-charcoalTeal">${k.nama_kamar}</span>
+            </td>
+            <td class="py-3.5 px-4 text-xs font-semibold">${k.kode_kamar} • ${k.tipe}</td>
+            <td class="py-3.5 px-4 font-bold text-emeraldNight">${formatRupiah(k.harga_malam)}</td>
+            <td class="py-3.5 px-4 text-xs text-warmSlate">${k.kapasitas} Org • ${k.fasilitas}</td>
+            <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-alabaster border border-sandBorder text-xs font-semibold">${k.status}</span></td>
+            <td class="py-3.5 px-4 text-right space-x-1">
+              <button onclick="window.app.openKamarModal('${k.id}')" class="px-2.5 py-1.5 rounded-lg bg-alabaster border border-sandBorder text-xs font-semibold hover:border-champagne">Edit</button>
+              <button onclick="window.app.deleteKamar('${k.id}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-700 text-xs font-semibold hover:bg-red-100">Hapus</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Admin Reservasi & Invoice Table (Termasuk tombol WA Tamu)
+      const resTbody = document.getElementById('admin-reservasi-tbody');
+      if (state.reservasi.length === 0) {
+        resTbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-warmSlate">Belum ada data reservasi.</td></tr>`;
+      } else {
+        resTbody.innerHTML = state.reservasi.map(r => {
+          const cleanGuestPhone = (r.no_hp_tamu || '').replace(/^0/, '62').replace(/[^0-9]/g, '');
+          const waGuestLink = `https://wa.me/${cleanGuestPhone}?text=${encodeURIComponent(`Halo ${r.nama_tamu}, berikut konfirmasi reservasi Penginapan TIPALAYO dengan No. Invoice ${r.no_invoice} (${r.nama_kamar}) untuk tanggal ${r.tgl_checkin}. Status saat ini: ${r.status_booking} (${r.status_bayar}).`)}`;
+          return `
+            <tr class="hover:bg-alabaster/60">
+              <td class="py-3.5 px-4 font-mono text-xs font-bold">${r.no_invoice}<br/><span class="text-warmSlate">#${r.kode_booking}</span></td>
+              <td class="py-3.5 px-4">
+                <p class="font-semibold">${r.nama_tamu}</p>
+                <a href="${waGuestLink}" target="_blank" class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-semibold hover:underline mt-0.5">
+                  <span>WA: ${r.no_hp_tamu}</span>
+                </a>
+              </td>
+              <td class="py-3.5 px-4 text-xs">
+                <p class="font-semibold text-charcoalTeal">${r.nama_kamar}</p>
+                <p class="text-warmSlate">${r.tgl_checkin} s/d ${r.tgl_checkout} (${r.total_malam} mlm)</p>
+              </td>
+              <td class="py-3.5 px-4">
+                <p class="font-bold text-emeraldNight">${formatRupiah(r.total_harga)}</p>
+                ${r.bukti_bayar_url ? `<button onclick="window.app.openPaymentModal('${r.id}')" class="text-[11px] text-champagne font-semibold underline">Lihat/Ubah Bukti Foto</button>` : `<span class="text-[11px] text-warmSlate">Belum ada bukti</span>`}
+              </td>
+              <td class="py-3.5 px-4 space-y-1.5">
+                <select onchange="window.app.updateStatusReservasi('${r.id}', this.value, null)" class="block w-full px-2 py-1 rounded-lg border border-sandBorder bg-alabaster text-xs font-semibold">
+                  ${['Pending', 'Disetujui', 'Check-In', 'Selesai', 'Batal'].map(s => `<option value="${s}" ${r.status_booking === s ? 'selected' : ''}>Booking: ${s}</option>`).join('')}
+                </select>
+                <select onchange="window.app.updateStatusReservasi('${r.id}', null, this.value)" class="block w-full px-2 py-1 rounded-lg border border-sandBorder bg-alabaster text-xs font-semibold">
+                  ${['Belum Bayar', 'Menunggu Verifikasi', 'Lunas'].map(p => `<option value="${p}" ${r.status_bayar === p ? 'selected' : ''}>Bayar: ${p}</option>`).join('')}
+                </select>
+              </td>
+              <td class="py-3.5 px-4 text-right space-y-1">
+                <button onclick="window.app.openInvoiceModal('${r.id}')" class="w-full px-3 py-1.5 rounded-lg bg-champagne text-white text-xs font-bold hover:bg-bronzeHover">Cetak Invoice</button>
+                <button onclick="window.app.deleteReservasi('${r.id}')" class="w-full px-3 py-1 rounded-lg bg-red-50 text-red-700 text-xs font-semibold">Hapus</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Admin Artikel Table
+      const artTbody = document.getElementById('admin-artikel-tbody');
+      if (state.artikel.length === 0) {
+        artTbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-warmSlate">Belum ada artikel.</td></tr>`;
+      } else {
+        artTbody.innerHTML = state.artikel.map(a => `
+          <tr>
+            <td class="py-3 px-4 flex items-center gap-3">
+              <img src="${a.gambar_url}" class="w-12 h-9 rounded-lg object-cover border border-sandBorder shrink-0" />
+              <span class="font-semibold text-charcoalTeal">${a.judul}</span>
+            </td>
+            <td class="py-3 px-4 text-xs font-semibold">${a.kategori}</td>
+            <td class="py-3 px-4 text-xs text-warmSlate">${a.tanggal_publikasi}</td>
+            <td class="py-3 px-4 text-right space-x-1">
+              <button onclick="window.app.openArtikelModal('${a.id}')" class="px-2.5 py-1 rounded-lg border border-sandBorder text-xs font-semibold">Edit</button>
+              <button onclick="window.app.deleteArtikel('${a.id}')" class="px-2.5 py-1 rounded-lg bg-red-50 text-red-700 text-xs font-semibold">Hapus</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Admin Tamu Table
+      const tamuTbody = document.getElementById('admin-tamu-tbody');
+      if (state.tamu.length === 0) {
+        tamuTbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-warmSlate">Belum ada akun tamu terdaftar.</td></tr>`;
+      } else {
+        tamuTbody.innerHTML = state.tamu.map(t => `
+          <tr>
+            <td class="py-3.5 px-4 font-semibold">${t.nama_lengkap}</td>
+            <td class="py-3.5 px-4 font-mono text-xs">${t.username}</td>
+            <td class="py-3.5 px-4 text-xs">${t.no_hp}</td>
+            <td class="py-3.5 px-4 font-mono text-xs text-warmSlate">${t.password}</td>
+            <td class="py-3.5 px-4 text-right space-x-1">
+              <button onclick="window.app.openTamuModal('${t.id}')" class="px-2.5 py-1 rounded-lg border border-sandBorder text-xs font-semibold">Edit</button>
+              <button onclick="window.app.deleteTamu('${t.id}')" class="px-2.5 py-1 rounded-lg bg-red-50 text-red-700 text-xs font-semibold">Hapus</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+      lucide.createIcons();
+    }
+
+    // Update Role & Navigation UI
+    function updateSessionUI() {
+      const adminGroup = document.getElementById('sidebar-admin-group');
+      const roleBadge = document.getElementById('sidebar-role-badge');
+      const userName = document.getElementById('sidebar-user-name');
+      const authBtn = document.getElementById('sidebar-auth-btn');
+      const mobileRole = document.getElementById('mobile-role-chip');
+      const mobileAuthBtn = document.getElementById('mobile-auth-btn');
+      const mobileAdminLabel = document.getElementById('mobile-admin-nav-label');
+
+      if (state.role === 'admin') {
+        adminGroup.classList.remove('hidden');
+        roleBadge.textContent = 'Administrator CMS';
+        userName.textContent = state.currentUser?.email || 'Admin TIPALAYO';
+        authBtn.textContent = 'Keluar';
+        authBtn.onclick = () => window.app.logout();
+        mobileRole.textContent = 'Admin CMS';
+        mobileAuthBtn.textContent = 'Keluar';
+        mobileAuthBtn.onclick = () => window.app.logout();
+        mobileAdminLabel.textContent = 'CMS Admin';
+      } else if (state.role === 'tamu') {
+        adminGroup.classList.add('hidden');
+        roleBadge.textContent = 'Member / Tamu';
+        userName.textContent = state.currentUser?.nama_lengkap || 'Tamu TIPALAYO';
+        authBtn.textContent = 'Keluar';
+        authBtn.onclick = () => window.app.logout();
+        mobileRole.textContent = state.currentUser?.nama_lengkap || 'Tamu';
+        mobileAuthBtn.textContent = 'Keluar';
+        mobileAuthBtn.onclick = () => window.app.logout();
+        mobileAdminLabel.textContent = 'Pesanan';
+      } else {
+        adminGroup.classList.add('hidden');
+        roleBadge.textContent = 'Pengunjung Publik';
+        userName.textContent = 'Selamat Datang';
+        authBtn.textContent = 'Masuk';
+        authBtn.onclick = () => window.app.openAuthModal();
+        mobileRole.textContent = 'Publik';
+        mobileAuthBtn.textContent = 'Masuk';
+        mobileAuthBtn.onclick = () => window.app.openAuthModal();
+        mobileAdminLabel.textContent = 'Login';
+      }
+    }
+
+    // Refresh All UI
+    function refreshAllUI() {
+      renderProfilAndCMS();
+      renderLandingAndKatalog();
+      renderPesananSaya();
+      renderAdminViews();
+      updateSessionUI();
+    }
+
+    // Expose Public Window Methods
+    window.app = {
+      navigate(viewName) {
+        if (viewName.startsWith('admin-') && state.role !== 'admin') {
+          showToast("Silakan masuk sebagai Admin CMS terlebih dahulu.", "error");
+          this.openAuthModal('admin');
+          return;
+        }
+        state.currentView = viewName;
+        document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+        const target = document.getElementById(`view-${viewName}`);
+        if (target) target.classList.remove('hidden');
+
+        document.querySelectorAll('.nav-item').forEach(btn => {
+          const isMatch = btn.getAttribute('data-nav') === viewName;
+          btn.classList.toggle('bg-white/10', isMatch);
+          btn.classList.toggle('text-champagne', isMatch);
+          btn.classList.toggle('font-semibold', isMatch);
+        });
+
+        document.getElementById('tipalayo-app-wrapper').scrollTo({ top: 0, behavior: 'smooth' });
+        lucide.createIcons();
+      },
+
+      quickSwitchRole(targetRole) {
+        if (!IS_PREVIEW) return;
+        if (targetRole === 'admin') {
+          state.role = 'admin';
+          state.currentUser = { email: 'admin@tipalayo.com' };
+          refreshAllUI();
+          this.navigate('admin-dashboard');
+          showToast("Mode Preview: Masuk Cepat sebagai Admin CMS");
+        } else if (targetRole === 'tamu') {
+          state.role = 'tamu';
+          state.currentUser = state.tamu[0] || { id: 201, nama_lengkap: 'Budi Santoso', no_hp: '081298765432' };
+          refreshAllUI();
+          this.navigate('pesanan');
+          showToast("Mode Preview: Masuk Cepat sebagai Tamu Member");
+        } else {
+          state.role = 'public';
+          state.currentUser = null;
+          refreshAllUI();
+          this.navigate('beranda');
+          showToast("Beralih ke Mode Pengunjung Publik");
+        }
+      },
+
+      handleMobileAdminOrAuth() {
+        if (state.role === 'admin') {
+          this.navigate('admin-dashboard');
+        } else {
+          this.openAuthModal();
+        }
+      },
+
+      closeModal(id) {
+        document.getElementById(id)?.classList.add('hidden');
+      },
+
+      handleImageUpload,
+      openInvoiceModal,
+
+      handleQuickSearchBooking(e) {
+        e.preventDefault();
+        this.navigate('katalog');
+        showToast("Menampilkan kamar yang tersedia untuk tanggal pilihan Anda.");
+      },
+
+      openBookingModal(kamarId) {
+        const room = state.kamar.find(k => String(k.id) === String(kamarId));
+        if (!room) return;
+        document.getElementById('book-kamar-id').value = room.id;
+        document.getElementById('book-kamar-nama').textContent = room.nama_kamar;
+        document.getElementById('book-kamar-harga-label').textContent = `${formatRupiah(room.harga_malam)} / malam`;
+
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const ci = document.getElementById('quick-checkin')?.value || today.toISOString().split('T')[0];
+        const co = document.getElementById('quick-checkout')?.value || tomorrow.toISOString().split('T')[0];
+
+        document.getElementById('book-tgl-checkin').value = ci;
+        document.getElementById('book-tgl-checkout').value = co;
+        document.getElementById('book-nama-tamu').value = state.currentUser?.nama_lengkap || '';
+        document.getElementById('book-hp-tamu').value = state.currentUser?.no_hp || '';
+        document.getElementById('book-catatan').value = '';
+
+        this.recalculateBookingTotal();
+        document.getElementById('booking-modal-backdrop').classList.remove('hidden');
+      },
+
+      recalculateBookingTotal() {
+        const kamarId = document.getElementById('book-kamar-id').value;
+        const room = state.kamar.find(k => String(k.id) === String(kamarId));
+        if (!room) return;
+        const ci = new Date(document.getElementById('book-tgl-checkin').value);
+        const co = new Date(document.getElementById('book-tgl-checkout').value);
+        let nights = Math.round((co - ci) / (1000 * 60 * 60 * 24));
+        if (isNaN(nights) || nights < 1) nights = 1;
+        document.getElementById('book-total-malam-text').textContent = nights;
+        document.getElementById('book-total-harga-text').textContent = formatRupiah(nights * Number(room.harga_malam));
+      },
+
+      async submitBookingForm(e) {
+        e.preventDefault();
+        const kamarId = document.getElementById('book-kamar-id').value;
+        const room = state.kamar.find(k => String(k.id) === String(kamarId));
+        if (!room) return;
+
+        const ci = document.getElementById('book-tgl-checkin').value;
+        const co = document.getElementById('book-tgl-checkout').value;
+        let nights = Math.round((new Date(co) - new Date(ci)) / (1000 * 60 * 60 * 24));
+        if (isNaN(nights) || nights < 1) nights = 1;
+
+        const randCode = Math.floor(1000 + Math.random() * 9000);
+        const payload = {
+          kode_booking: `TPL-${randCode}`,
+          no_invoice: `INV/TPL/2026/${randCode}`,
+          tamu_id: state.currentUser?.id || null,
+          nama_tamu: document.getElementById('book-nama-tamu').value.trim(),
+          no_hp_tamu: document.getElementById('book-hp-tamu').value.trim(),
+          kamar_id: room.id,
+          nama_kamar: room.nama_kamar,
+          harga_malam: Number(room.harga_malam),
+          tgl_checkin: ci,
+          tgl_checkout: co,
+          total_malam: nights,
+          total_harga: nights * Number(room.harga_malam),
+          status_booking: 'Pending',
+          status_bayar: 'Belum Bayar',
+          bukti_bayar_url: '',
+          catatan: document.getElementById('book-catatan').value.trim(),
+          created_at: new Date().toISOString().split('T')[0]
+        };
+
+        if (IS_PREVIEW) {
+          payload.id = Date.now();
+          state.reservasi.unshift(payload);
+        } else if (supabase) {
+          const { data, error } = await supabase.from('reservasi').insert([payload]).select().single();
+          if (error) return showToast(`Gagal menyimpan reservasi: ${error.message}`, "error");
+          if (data) payload.id = data.id;
+          await fetchAllSupabaseData();
+        }
+
+        this.closeModal('booking-modal-backdrop');
+        refreshAllUI();
+        this.navigate('pesanan');
+        this.openInvoiceModal(payload.id);
+        showToast("Reservasi berhasil dibuat! E-Invoice resmi siap dicetak.");
+      },
+
+      openPaymentModal(reservasiId) {
+        const r = state.reservasi.find(item => String(item.id) === String(reservasiId));
+        if (!r) return;
+        document.getElementById('pay-reservasi-id').value = r.id;
+        document.getElementById('pay-rekening-display').textContent = state.profil.info_rekening;
+        document.getElementById('pay-bukti-url').value = r.bukti_bayar_url || '';
+        document.getElementById('preview-bukti-bayar').src = r.bukti_bayar_url || 'https://placehold.co/600x360/FBF9F5/64706D?text=Pratinjau+Bukti+Bayar';
+        document.getElementById('payment-modal-backdrop').classList.remove('hidden');
+      },
+
+      async submitBuktiBayar(e) {
+        e.preventDefault();
+        const id = document.getElementById('pay-reservasi-id').value;
+        const url = document.getElementById('pay-bukti-url').value.trim();
+        if (!url) return showToast("Silakan pilih file foto atau masukkan URL bukti bayar.", "error");
+
+        if (IS_PREVIEW) {
+          const idx = state.reservasi.findIndex(r => String(r.id) === String(id));
+          if (idx > -1) {
+            state.reservasi[idx].bukti_bayar_url = url;
+            if (state.reservasi[idx].status_bayar === 'Belum Bayar') {
+              state.reservasi[idx].status_bayar = 'Menunggu Verifikasi';
+            }
+          }
+        } else if (supabase) {
+          const { error } = await supabase.from('reservasi').update({
+            bukti_bayar_url: url,
+            status_bayar: 'Menunggu Verifikasi'
+          }).eq('id', id);
+          if (error) return showToast("Gagal mengunggah bukti bayar.", "error");
+          await fetchAllSupabaseData();
+        }
+
+        this.closeModal('payment-modal-backdrop');
+        refreshAllUI();
+        showToast("Bukti pembayaran berhasil diunggah!");
+      },
+
+      // CRUD Profil CMS
+      async saveProfilCMS(e) {
+        e.preventDefault();
+        const updated = {
+          judul_hero: document.getElementById('cms-judul-hero').value.trim(),
+          subjudul_hero: document.getElementById('cms-subjudul-hero').value.trim(),
+          tentang_kami: document.getElementById('cms-tentang-kami').value.trim(),
+          alamat: document.getElementById('cms-alamat').value.trim(),
+          telepon_wa: document.getElementById('cms-telepon-wa').value.trim(),
+          info_rekening: document.getElementById('cms-info-rekening').value.trim(),
+          logo_url: document.getElementById('cms-logo-url').value.trim(),
+          banner_url: document.getElementById('cms-banner-url').value.trim()
+        };
+
+        if (IS_PREVIEW) {
+          state.profil = { ...state.profil, ...updated };
+        } else if (supabase) {
+          const { error } = await supabase.from('cms_profil').upsert([{ id: state.profil.id || 1, ...updated }]);
+          if (error) return showToast(`Gagal menyimpan CMS: ${error.message}`, "error");
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+        showToast("Pengaturan Profil, Banner & Nomor WA berhasil diperbarui!");
+      },
+
+      // CRUD Kamar
+      openKamarModal(id = null) {
+        const room = id ? state.kamar.find(k => String(k.id) === String(id)) : null;
+        document.getElementById('kamar-modal-title').textContent = room ? 'Edit Data Kamar' : 'Tambah Kamar Baru';
+        document.getElementById('form-kamar-id').value = room?.id || '';
+        document.getElementById('form-kamar-kode').value = room?.kode_kamar || `TPL-RM0${state.kamar.length + 1}`;
+        document.getElementById('form-kamar-nama').value = room?.nama_kamar || '';
+        document.getElementById('form-kamar-tipe').value = room?.tipe || 'Deluxe';
+        document.getElementById('form-kamar-harga').value = room?.harga_malam || 350000;
+        document.getElementById('form-kamar-kapasitas').value = room?.kapasitas || 2;
+        document.getElementById('form-kamar-fasilitas').value = room?.fasilitas || 'King Bed • AC • Smart TV • WiFi';
+        document.getElementById('form-kamar-status').value = room?.status || 'Tersedia';
+        document.getElementById('form-kamar-foto').value = room?.foto_url || '';
+        document.getElementById('preview-form-kamar').src = room?.foto_url || 'https://placehold.co/300x200/0F262A/C5A367?text=Foto+Kamar';
+        document.getElementById('kamar-modal-backdrop').classList.remove('hidden');
+      },
+
+      async saveKamar(e) {
+        e.preventDefault();
+        const id = document.getElementById('form-kamar-id').value;
+        const payload = {
+          kode_kamar: document.getElementById('form-kamar-kode').value.trim(),
+          nama_kamar: document.getElementById('form-kamar-nama').value.trim(),
+          tipe: document.getElementById('form-kamar-tipe').value,
+          harga_malam: Number(document.getElementById('form-kamar-harga').value),
+          kapasitas: Number(document.getElementById('form-kamar-kapasitas').value),
+          fasilitas: document.getElementById('form-kamar-fasilitas').value.trim(),
+          status: document.getElementById('form-kamar-status').value,
+          foto_url: document.getElementById('form-kamar-foto').value.trim() || 'https://placehold.co/600x400/0F262A/C5A367?text=Kamar+TIPALAYO'
+        };
+
+        if (IS_PREVIEW) {
+          if (id) {
+            const idx = state.kamar.findIndex(k => String(k.id) === String(id));
+            if (idx > -1) state.kamar[idx] = { ...state.kamar[idx], ...payload };
+          } else {
+            state.kamar.push({ id: Date.now(), ...payload });
+          }
+        } else if (supabase) {
+          const query = id
+            ? supabase.from('kamar').update(payload).eq('id', id)
+            : supabase.from('kamar').insert([payload]);
+          const { error } = await query;
+          if (error) return showToast(`Gagal menyimpan kamar: ${error.message}`, "error");
+          await fetchAllSupabaseData();
+        }
+
+        this.closeModal('kamar-modal-backdrop');
+        refreshAllUI();
+        showToast("Data kamar berhasil disimpan!");
+      },
+
+      async deleteKamar(id) {
+        if (IS_PREVIEW) {
+          state.kamar = state.kamar.filter(k => String(k.id) !== String(id));
+        } else if (supabase) {
+          const { error } = await supabase.from('kamar').delete().eq('id', id);
+          if (error) return showToast("Gagal menghapus kamar.", "error");
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+        showToast("Data kamar dihapus.");
+      },
+
+      // CRUD Reservasi Admin
+      async updateStatusReservasi(id, statusBooking, statusBayar) {
+        const r = state.reservasi.find(item => String(item.id) === String(id));
+        if (!r) return;
+        const updates = {};
+        if (statusBooking) updates.status_booking = statusBooking;
+        if (statusBayar) updates.status_bayar = statusBayar;
+
+        if (IS_PREVIEW) {
+          Object.assign(r, updates);
+        } else if (supabase) {
+          const { error } = await supabase.from('reservasi').update(updates).eq('id', id);
+          if (error) return showToast("Gagal memperbarui status reservasi.", "error");
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+        showToast("Status reservasi & invoice diperbarui!");
+      },
+
+      async deleteReservasi(id) {
+        if (IS_PREVIEW) {
+          state.reservasi = state.reservasi.filter(r => String(r.id) !== String(id));
+        } else if (supabase) {
+          await supabase.from('reservasi').delete().eq('id', id);
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+        showToast("Data reservasi dihapus.");
+      },
+
+      // CRUD Artikel CMS
+      openArtikelModal(id = null) {
+        const art = id ? state.artikel.find(a => String(a.id) === String(id)) : null;
+        document.getElementById('artikel-modal-title').textContent = art ? 'Edit Artikel / Promo' : 'Tulis Artikel / Promo';
+        document.getElementById('form-artikel-id').value = art?.id || '';
+        document.getElementById('form-artikel-judul').value = art?.judul || '';
+        document.getElementById('form-artikel-kategori').value = art?.kategori || 'Promo';
+        document.getElementById('form-artikel-tanggal').value = art?.tanggal_publikasi || new Date().toISOString().split('T')[0];
+        document.getElementById('form-artikel-isi').value = art?.isi_konten || '';
+        document.getElementById('form-artikel-gambar').value = art?.gambar_url || '';
+        document.getElementById('preview-form-artikel').src = art?.gambar_url || 'https://placehold.co/300x200/0F262A/C5A367?text=Artikel';
+        document.getElementById('artikel-modal-backdrop').classList.remove('hidden');
+      },
+
+      async saveArtikel(e) {
+        e.preventDefault();
+        const id = document.getElementById('form-artikel-id').value;
+        const payload = {
+          judul: document.getElementById('form-artikel-judul').value.trim(),
+          kategori: document.getElementById('form-artikel-kategori').value,
+          tanggal_publikasi: document.getElementById('form-artikel-tanggal').value,
+          isi_konten: document.getElementById('form-artikel-isi').value.trim(),
+          gambar_url: document.getElementById('form-artikel-gambar').value.trim() || 'https://placehold.co/600x400/0F262A/C5A367?text=Info+TIPALAYO'
+        };
+
+        if (IS_PREVIEW) {
+          if (id) {
+            const idx = state.artikel.findIndex(a => String(a.id) === String(id));
+            if (idx > -1) state.artikel[idx] = { ...state.artikel[idx], ...payload };
+          } else {
+            state.artikel.unshift({ id: Date.now(), ...payload });
+          }
+        } else if (supabase) {
+          const query = id
+            ? supabase.from('cms_artikel').update(payload).eq('id', id)
+            : supabase.from('cms_artikel').insert([payload]);
+          const { error } = await query;
+          if (error) return showToast("Gagal menyimpan artikel.", "error");
+          await fetchAllSupabaseData();
+        }
+
+        this.closeModal('artikel-modal-backdrop');
+        refreshAllUI();
+        showToast("Artikel berhasil dipublikasikan!");
+      },
+
+      async deleteArtikel(id) {
+        if (IS_PREVIEW) {
+          state.artikel = state.artikel.filter(a => String(a.id) !== String(id));
+        } else if (supabase) {
+          await supabase.from('cms_artikel').delete().eq('id', id);
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+        showToast("Artikel dihapus.");
+      },
+
+      // CRUD Akun Tamu
+      openTamuModal(id = null) {
+        const t = id ? state.tamu.find(item => String(item.id) === String(id)) : null;
+        document.getElementById('tamu-modal-title').textContent = t ? 'Edit Akun Tamu' : 'Tambah Akun Tamu';
+        document.getElementById('form-tamu-id').value = t?.id || '';
+        document.getElementById('form-tamu-nama').value = t?.nama_lengkap || '';
+        document.getElementById('form-tamu-username').value = t?.username || '';
+        document.getElementById('form-tamu-hp').value = t?.no_hp || '';
+        document.getElementById('form-tamu-password').value = t?.password || '';
+        document.getElementById('tamu-modal-backdrop').classList.remove('hidden');
+      },
+
+      async saveTamu(e) {
+        e.preventDefault();
+        const id = document.getElementById('form-tamu-id').value;
+        const payload = {
+          nama_lengkap: document.getElementById('form-tamu-nama').value.trim(),
+          username: document.getElementById('form-tamu-username').value.trim(),
+          no_hp: document.getElementById('form-tamu-hp').value.trim(),
+          password: document.getElementById('form-tamu-password').value.trim()
+        };
+
+        if (IS_PREVIEW) {
+          if (id) {
+            const idx = state.tamu.findIndex(t => String(t.id) === String(id));
+            if (idx > -1) state.tamu[idx] = { ...state.tamu[idx], ...payload };
+          } else {
+            state.tamu.unshift({ id: Date.now(), ...payload });
+          }
+        } else if (supabase) {
+          const query = id
+            ? supabase.from('tamu').update(payload).eq('id', id)
+            : supabase.from('tamu').insert([payload]);
+          const { error } = await query;
+          if (error) return showToast(`Gagal menyimpan akun tamu: ${error.message}`, "error");
+          await fetchAllSupabaseData();
+        }
+
+        this.closeModal('tamu-modal-backdrop');
+        refreshAllUI();
+        showToast("Akun tamu berhasil disimpan!");
+      },
+
+      async deleteTamu(id) {
+        if (IS_PREVIEW) {
+          state.tamu = state.tamu.filter(t => String(t.id) !== String(id));
+        } else if (supabase) {
+          await supabase.from('tamu').delete().eq('id', id);
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+        showToast("Akun tamu dihapus.");
+      },
+
+      // Hybrid Authentication
+      openAuthModal(defaultTab = 'tamu') {
+        this.switchAuthTab(defaultTab);
+        document.getElementById('auth-modal-backdrop').classList.remove('hidden');
+      },
+
+      switchAuthTab(tab) {
+        const isTamu = tab === 'tamu';
+        document.getElementById('form-login-tamu').classList.toggle('hidden', !isTamu);
+        document.getElementById('form-login-admin').classList.toggle('hidden', isTamu);
+        document.getElementById('tab-login-tamu').className = isTamu
+          ? 'py-2 rounded-lg bg-emeraldNight text-white transition'
+          : 'py-2 rounded-lg text-warmSlate hover:text-charcoalTeal transition';
+        document.getElementById('tab-login-admin').className = !isTamu
+          ? 'py-2 rounded-lg bg-emeraldNight text-white transition'
+          : 'py-2 rounded-lg text-warmSlate hover:text-charcoalTeal transition';
+      },
+
+      async handleTamuLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('login-tamu-user').value.trim();
+        const password = document.getElementById('login-tamu-pass').value.trim();
+
+        if (IS_PREVIEW) {
+          const found = state.tamu.find(t => t.username === username && t.password === password);
+          if (!found) return showToast("Username atau password tamu tidak cocok (Coba: budi_tamu / 123)", "error");
+          state.role = 'tamu';
+          state.currentUser = found;
+        } else if (supabase) {
+          const { data, error } = await supabase
+            .from('tamu')
+            .select('*')
+            .eq('username', username)
+            .eq('password', password)
+            .maybeSingle();
+          if (error || !data) return showToast("Kredensial tamu tidak valid.", "error");
+          state.role = 'tamu';
+          state.currentUser = data;
+        }
+
+        this.closeModal('auth-modal-backdrop');
+        refreshAllUI();
+        this.navigate('pesanan');
+        showToast(`Selamat datang kembali, ${state.currentUser.nama_lengkap}!`);
+      },
+
+      async handleAdminLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-admin-email').value.trim();
+        const password = document.getElementById('login-admin-pass').value.trim();
+
+        if (IS_PREVIEW) {
+          state.role = 'admin';
+          state.currentUser = { email };
+        } else if (supabase) {
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error || !data.user) return showToast(`Login Admin gagal: ${error?.message || 'Cek email/password'}`, "error");
+          state.role = 'admin';
+          state.currentUser = data.user;
+        }
+
+        this.closeModal('auth-modal-backdrop');
+        refreshAllUI();
+        this.navigate('admin-dashboard');
+        showToast("Berhasil masuk ke Dashboard Admin CMS!");
+      },
+
+      async logout() {
+        if (!IS_PREVIEW && supabase && state.role === 'admin') {
+          await supabase.auth.signOut();
+        }
+        state.role = 'public';
+        state.currentUser = null;
+        refreshAllUI();
+        this.navigate('beranda');
+        showToast("Anda telah keluar dari sesi akun.");
+      }
+    };
+
+    // Inisialisasi Saat Halaman Dimuat
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Set default tanggal di Quick Booking Bar
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      document.getElementById('quick-checkin').value = today.toISOString().split('T')[0];
+      document.getElementById('quick-checkout').value = tomorrow.toISOString().split('T')[0];
+
+      if (IS_PREVIEW) {
+        document.getElementById('preview-mode-banner').classList.remove('hidden');
+        initPreviewDummyData();
+        refreshAllUI();
+      } else {
+        document.getElementById('preview-mode-banner').remove();
+        if (supabase) {
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData?.session?.user) {
+            state.role = 'admin';
+            state.currentUser = sessionData.session.user;
+          }
+          await fetchAllSupabaseData();
+        }
+        refreshAllUI();
+      }
+
+      window.app.navigate('beranda');
+
+      // Single-File PWA Service Worker via Blob
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        try {
+          const swCode = `
+            self.addEventListener('install', e => self.skipWaiting());
+            self.addEventListener('activate', e => self.clients.claim());
+            self.addEventListener('fetch', e => {});
+          `;
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+        } catch (_) {}
+      }
+    });
+  </script>
+</body>
+</html>
